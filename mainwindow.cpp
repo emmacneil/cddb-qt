@@ -1,6 +1,10 @@
-#include "mainwindow.h"
-#include "ui_mainwindow.h"
 #include "addgenredialog.h"
+#include "albumview.h"
+#include "artistview.h"
+#include "genreview.h"
+#include "mainwindow.h"
+//#include "ui_mainwindow.h"
+
 
 #include <QtSql/QtSql>
 #include <QSplitter>
@@ -8,11 +12,8 @@
 #include <QHBoxLayout>
 
 MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent),
-    ui(new Ui::MainWindow)
+    QMainWindow(parent)
 {
-    ui->setupUi(this);
-
     createActions();
     createMenus();
 
@@ -21,18 +22,16 @@ MainWindow::MainWindow(QWidget *parent) :
     createDatabase();
 
     tabWidget = new QTabWidget();
+    tabWidget->addTab(new AlbumView, tr("&1: Albums"));
+    tabWidget->addTab(new ArtistView, tr("&2: Artists"));
+    tabWidget->addTab(new GenreView, tr("&3: Genres"));
     setCentralWidget(tabWidget);
-    //createTable();
-    createAlbumTab();
-    createArtistTab();
-    createGenreTab();
 
     showMaximized();
 }
 
 MainWindow::~MainWindow()
 {
-    delete ui;
 }
 
 void MainWindow::addSqlConnection()
@@ -49,14 +48,6 @@ void MainWindow::addSqlConnection()
 
 void MainWindow::addGenre()
 {
-    // Open a dialog box and allow user to enter information about the genre
-    // Genre data
-    //   Genre name (required)
-    //   Parent genres, if all songs under this genre would also be considered of those.
-    //   Other related genres
-    //     These two should allow user to select from existing genres / type in genre and have it autocomplete from options.
-    //     Fillable drop-down box?
-    //   Notes
     AddGenreDialog dialog(this);
     if (dialog.exec() == QDialog::Accepted)
     {
@@ -89,120 +80,6 @@ void MainWindow::createActions()
 
     aboutAct = new QAction(tr("&About..."));
     aboutAct->setEnabled(false);
-}
-
-void MainWindow::createAlbumTab()
-{
-    // Album tab is a QSplitter divided into three sections
-    // Left-most section has a number of editable fields for search queries
-    // Middle section is a table displaying a list of search results
-    // Right-most section displays more details about an item selected from the middle table.
-    QSplitter *splitter = new QSplitter;
-    QGroupBox *left = new QGroupBox(tr("Search"));
-    QGroupBox *tableBox = new QGroupBox(tr("Results"));
-    QGroupBox *right = new QGroupBox(tr("Details"));
-    splitter->addWidget(left);
-    splitter->addWidget(tableBox);
-    splitter->addWidget(right);
-    tabWidget->addTab(splitter, tr("&1: Albums"));
-    int w = splitter->width()/3;
-    QList<int> sizes = {w, w, w};
-    splitter->setSizes(sizes);
-
-    // Set up the search box
-    
-    // Set up the table view
-    // Choose a layout for the interior of the GroupBox
-    // It doesn't matter what layout we choose since we're only adding one widget
-    QHBoxLayout *tableLayout = new QHBoxLayout;
-
-    // Create the table and add it to the layout
-    // By default, we will show a list of all artists
-    QSqlQueryModel *model = new QSqlQueryModel;
-    model->setQuery("SELECT title, release_year FROM album");
-    model->setHeaderData(0, Qt::Horizontal, tr("Title"));
-    model->setHeaderData(1, Qt::Horizontal, tr("Year"));
-    tableView = new QTableView;
-    tableView->setModel(model);
-    tableView->resizeColumnsToContents();
-    tableView->show();
-
-    tableBox->setLayout(tableLayout);
-    tableLayout->addWidget(tableView);
-}
-
-void MainWindow::createArtistTab()
-{
-    // Artist tab is a QSplitter divided into three sections
-    // Left-most section has a number of editable fields for search queries
-    // Middle section is a table displaying a list of search results
-    // Right-most section displays more details about an item selected from the middle table.
-    QSplitter *splitter = new QSplitter;
-    QGroupBox *left = new QGroupBox(tr("Search"));
-    QGroupBox *tableBox = new QGroupBox(tr("Results"));
-    QGroupBox *right = new QGroupBox(tr("Details"));
-    splitter->addWidget(left);
-    splitter->addWidget(tableBox);
-    splitter->addWidget(right);
-    tabWidget->addTab(splitter, tr("&2: Artists"));
-    int w = splitter->width()/3;
-    QList<int> sizes = {w, w, w};
-    splitter->setSizes(sizes);
-
-    // Set up the search box
-
-    // Set up the table view
-    // Choose a layout for the interior of the GroupBox
-    // It doesn't matter what layout we choose since we're only adding one widget
-    QHBoxLayout *tableLayout = new QHBoxLayout;
-
-    // Create the table and add it to the layout
-    // By default, we will show a list of all artists
-    QSqlQueryModel *model = new QSqlQueryModel;
-    model->setQuery("SELECT name, country FROM artist");
-    model->setHeaderData(0, Qt::Horizontal, tr("Artist"));
-    model->setHeaderData(1, Qt::Horizontal, tr("Country"));
-    tableView = new QTableView;
-    tableView->setModel(model);
-    tableView->resizeColumnsToContents();
-    tableView->show();
-
-    tableBox->setLayout(tableLayout);
-    tableLayout->addWidget(tableView);
-}
-
-void MainWindow::createGenreTab()
-{
-    // Genre tab is a QSplitter divided into two sections
-    // Left-most section is a table displaying a list of genres
-    // Right-most section displays more details about an genre selected from the left.
-    QSplitter *splitter = new QSplitter;
-    QGroupBox *tableBox = new QGroupBox(tr("List"));
-    QGroupBox *detailBox = new QGroupBox(tr("Details"));
-    splitter->addWidget(tableBox);
-    splitter->addWidget(detailBox);
-    tabWidget->addTab(splitter, tr("&3: Genres"));
-    int w = splitter->width()/2;
-    QList<int> sizes = {w, w};
-    splitter->setSizes(sizes);
-
-    // Set up the table view
-    // Choose a layout for the interior of the GroupBox
-    // It doesn't matter what layout we choose since we're only adding one widget
-    QHBoxLayout *tableLayout = new QHBoxLayout;
-
-    // Create the table and add it to the layout
-    // By default, we will show a list of all artists
-    QSqlQueryModel *model = new QSqlQueryModel;
-    model->setQuery("SELECT name FROM genre");
-    model->setHeaderData(0, Qt::Horizontal, tr("Genre"));
-    tableView = new QTableView;
-    tableView->setModel(model);
-    tableView->resizeColumnsToContents();
-    tableView->show();
-
-    tableBox->setLayout(tableLayout);
-    tableLayout->addWidget(tableView);
 }
 
 void MainWindow::createDatabase()

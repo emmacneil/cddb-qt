@@ -2,8 +2,8 @@
 #define MAINWINDOW_H
 
 #include <QMenu>
+#include <QMenuBar>
 #include <QMainWindow>
-#include <QTableView>
 
 namespace Ui {
 class MainWindow;
@@ -22,7 +22,6 @@ private slots:
     void quit();
 
 private:
-    Ui::MainWindow *ui;
     QMenu *fileMenu;
     QMenu *editMenu;
     QMenu *helpMenu;
@@ -31,13 +30,9 @@ private:
     QAction *addArtistAct;
     QAction *addGenreAct;
     QAction *aboutAct;
-    QTableView *tableView;
     QTabWidget *tabWidget;
     void addSqlConnection();
     void createActions();
-    void createAlbumTab();
-    void createArtistTab();
-    void createGenreTab();
     void createDatabase();
     void createMenus();
 };

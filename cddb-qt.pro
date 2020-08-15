@@ -30,12 +30,17 @@ SOURCES += \
         main.cpp \
         mainwindow.cpp \
     addgenredialog.cpp \
-    genre.cpp
+    genre.cpp \
+    artistview.cpp \
+    genreview.cpp \
+    albumview.cpp
 
 HEADERS += \
         mainwindow.h \
     addgenredialog.h \
-    genre.h
+    genre.h \
+    artistview.h \
+    genreview.h \
+    albumview.h
 
-FORMS += \
-        mainwindow.ui
+FORMS +=
