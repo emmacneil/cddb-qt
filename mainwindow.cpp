@@ -8,12 +8,14 @@
 
 #include <QtSql/QtSql>
 #include <QSplitter>
+//#include <QtGlobal>
 #include <QGroupBox>
 #include <QHBoxLayout>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent)
 {
+    qDebug() << "Qt Version" << qVersion();
     createActions();
     createMenus();
 

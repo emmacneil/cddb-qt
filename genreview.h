@@ -1,6 +1,8 @@
 #ifndef GENREVIEW_H
 #define GENREVIEW_H
 
+#include "markdownview.h"
+
 #include <QGroupBox>
 #include <QPushButton>
 #include <QSplitter>
@@ -19,12 +21,14 @@ private:
     QPushButton *refreshButton;
     QSqlQueryModel *queryModel;
     QTableView *tableView;
+    MarkdownView *markdownView;
 
     void initGenreListGroupBox();
     void initDetailsGroupBox();
 
 private slots:
     void updateGenreList();
+    void updateMarkdownView();
 };
 
 #endif // GENREVIEW_H

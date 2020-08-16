@@ -1,8 +1,13 @@
 #include "genreview.h"
 
+#include <QDebug>
 #include <QGroupBox>
 #include <QVBoxLayout>
 #include <QTableView>
+#include <QTextEdit>
+
+#include <QSqlQuery>
+#include <QSqlResult>
 
 GenreView::GenreView() : QSplitter()
 {
@@ -21,11 +26,19 @@ GenreView::GenreView() : QSplitter()
     int w = width()/2;
     QList<int> sizes = {w, w};
     setSizes(sizes);
+
+    connect(tableView, &QTableView::clicked, this, &GenreView::updateMarkdownView);
 }
 
 void GenreView::initDetailsGroupBox()
 {
     detailsGroupBox = new QGroupBox(tr("Details"));
+
+    QVBoxLayout *detailsLayout = new QVBoxLayout;
+    detailsGroupBox->setLayout(detailsLayout);
+
+    markdownView = new MarkdownView;
+    detailsLayout->addWidget(markdownView);
 }
 
 void GenreView::initGenreListGroupBox()
@@ -39,6 +52,8 @@ void GenreView::initGenreListGroupBox()
 
     // Create a QTableView widget to show the genre list in a table
     tableView = new QTableView;
+    tableView->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
     tableLayout->addWidget(tableView);
 
     // Create a refresh button to update the genre list if new genres are added
@@ -56,3 +71,29 @@ void GenreView::updateGenreList()
     tableView->show();
 }
 
+void GenreView::updateMarkdownView()
+{
+    qDebug() << "Clicked!";
+    QItemSelectionModel *selectionModel = tableView->selectionModel();
+    QList<QModelIndex> selectedRows = selectionModel->selectedRows();
+    if (selectedRows.size() == 1)
+    {
+        QModelIndex i = selectedRows[0];
+        QString genre = tableView->model()->data(i).toString();
+
+        // Find notes for the selected genre
+        QSqlQuery query;
+        query.prepare("SELECT notes FROM genre WHERE name = ?");
+        query.bindValue(0, genre);
+        query.exec();
+        query.next();
+        QString md = query.value(0).toString();
+
+        // Set notes in markdown
+        markdownView->setMarkdown(md);
+    }
+    else
+    {
+        markdownView->setMarkdown("");
+    }
+}

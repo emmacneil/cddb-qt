@@ -33,7 +33,8 @@ SOURCES += \
     genre.cpp \
     artistview.cpp \
     genreview.cpp \
-    albumview.cpp
+    albumview.cpp \
+    markdownview.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -41,6 +42,7 @@ HEADERS += \
     genre.h \
     artistview.h \
     genreview.h \
-    albumview.h
+    albumview.h \
+    markdownview.h
 
 FORMS +=
