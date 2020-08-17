@@ -19,17 +19,22 @@ public:
 
 private slots:
     void addGenre();
+    void editGenre();
     void quit();
 
 private:
-    QMenu *fileMenu;
-    QMenu *editMenu;
-    QMenu *helpMenu;
-    QAction *quitAct;
+    QAction *aboutAct;
     QAction *addAlbumAct;
     QAction *addArtistAct;
     QAction *addGenreAct;
-    QAction *aboutAct;
+    QAction *editAlbumAct;
+    QAction *editArtistAct;
+    QAction *editGenreAct;
+    QAction *quitAct;
+    QMenu *fileMenu;
+    QMenu *addMenu;
+    QMenu *editMenu;
+    QMenu *helpMenu;
     QTabWidget *tabWidget;
     void addSqlConnection();
     void createActions();

@@ -1,6 +1,7 @@
 #include "addgenredialog.h"
 #include "albumview.h"
 #include "artistview.h"
+#include "editgenredialog.h"
 #include "genreview.h"
 #include "mainwindow.h"
 //#include "ui_mainwindow.h"
@@ -51,14 +52,7 @@ void MainWindow::addSqlConnection()
 void MainWindow::addGenre()
 {
     AddGenreDialog dialog(this);
-    if (dialog.exec() == QDialog::Accepted)
-    {
-        qDebug() << "Dialog accepted";
-    }
-    else
-    {
-        qDebug() << "Dialog rejected";
-    }
+    dialog.exec();
 }
 
 void MainWindow::createActions()
@@ -69,6 +63,16 @@ void MainWindow::createActions()
     quitAct->setStatusTip(tr("Quit CDDB-qt"));
     connect(quitAct, &QAction::triggered, this, &MainWindow::quit);
 
+    editAlbumAct = new QAction(tr("Edit &Album..."));
+    editAlbumAct->setEnabled(false);
+
+    editArtistAct = new QAction(tr("Edit A&rtist..."));
+    editArtistAct->setEnabled(false);
+
+    editGenreAct = new QAction(tr("Edit &Genre..."));
+    editGenreAct->setStatusTip(tr("Edit a new genre in the database"));
+    connect(editGenreAct, &QAction::triggered, this, &MainWindow::editGenre);
+
     addAlbumAct = new QAction(tr("Add &Album..."));
     addAlbumAct->setEnabled(false);
 
@@ -76,7 +80,6 @@ void MainWindow::createActions()
     addArtistAct->setEnabled(false);
 
     addGenreAct = new QAction(tr("Add &Genre..."));
-    // addGenreAct->setEnabled(false);
     addGenreAct->setStatusTip(tr("Add a new genre to the database"));
     connect(addGenreAct, &QAction::triggered, this, &MainWindow::addGenre);
 
@@ -153,13 +156,25 @@ void MainWindow::createMenus()
     fileMenu->addAction(quitAct);
 
     editMenu = menuBar()->addMenu(tr("&Edit"));
-    editMenu->addAction(addArtistAct);
-    editMenu->addAction(addAlbumAct);
-    editMenu->addAction(addGenreAct);
+    editMenu->addAction(editAlbumAct);
+    editMenu->addAction(editArtistAct);
+    editMenu->addAction(editGenreAct);
+
+    addMenu = menuBar()->addMenu(tr("&Add"));
+    addMenu->addAction(addAlbumAct);
+    addMenu->addAction(addArtistAct);
+    addMenu->addAction(addGenreAct);
 
     helpMenu = menuBar()->addMenu(tr("&Help"));
     helpMenu->addAction(aboutAct);
 }
+
+void MainWindow::editGenre()
+{
+    EditGenreDialog dialog(this);
+    dialog.exec();
+}
+
 
 void MainWindow::quit()
 {

@@ -1,0 +1,38 @@
+#ifndef GENREDIALOG_H
+#define GENREDIALOG_H
+
+#include <QDialog>
+
+#include <QComboBox>
+#include <QDialogButtonBox>
+#include <QLineEdit>
+#include <QListWidget>
+#include <QTextEdit>
+
+class GenreDialog : public QDialog
+{
+    Q_OBJECT
+public:
+    GenreDialog(QWidget *parent = 0);
+
+protected:
+    //Ui::MainWindow *ui;
+    QStringList genreList;
+    QComboBox *parentComboBox;
+    QComboBox *similarComboBox;
+    QDialogButtonBox *buttonBox;
+    QLineEdit *nameLineEdit;
+    QListWidget *parentListWidget;
+    QListWidget *similarListWidget;
+    QTextEdit *notesTextEdit;
+
+    void addGenre(QListWidget *listWidget, QComboBox *comboBox);
+    void addParentGenre();
+    void addSimilarGenre();
+    void populateGenreList();
+    void removeGenre(QListWidget *listWidget);
+    void removeParentGenre();
+    void removeSimilarGenre();
+};
+
+#endif // GENREDIALOG_H
