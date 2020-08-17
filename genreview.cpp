@@ -3,7 +3,6 @@
 #include <QDebug>
 #include <QGroupBox>
 #include <QVBoxLayout>
-#include <QTableView>
 #include <QTextEdit>
 
 #include <QSqlQuery>
@@ -64,27 +63,27 @@ void GenreView::initGenreListGroupBox()
 
 void GenreView::updateGenreList()
 {
-    queryModel->setQuery("SELECT name FROM genre");
-    queryModel->setHeaderData(0, Qt::Horizontal, tr("Genre"));
+    queryModel->setQuery("SELECT id, name FROM genre");
+    queryModel->setHeaderData(0, Qt::Horizontal, tr("ID"));
+    queryModel->setHeaderData(1, Qt::Horizontal, tr("Genre"));
     tableView->setModel(queryModel);
+    tableView->hideColumn(0);
     tableView->resizeColumnsToContents();
     tableView->show();
 }
 
 void GenreView::updateMarkdownView()
 {
-    qDebug() << "Clicked!";
     QItemSelectionModel *selectionModel = tableView->selectionModel();
     QList<QModelIndex> selectedRows = selectionModel->selectedRows();
     if (selectedRows.size() == 1)
     {
         QModelIndex i = selectedRows[0];
-        QString genre = tableView->model()->data(i).toString();
-
+        int genreID = tableView->model()->data(i).toInt(); // TODO : Why does this select the ID and not the name column?
         // Find notes for the selected genre
         QSqlQuery query;
-        query.prepare("SELECT notes FROM genre WHERE name = ?");
-        query.bindValue(0, genre);
+        query.prepare("SELECT notes FROM genre WHERE id = ?");
+        query.bindValue(0, genreID);
         query.exec();
         query.next();
         QString md = query.value(0).toString();

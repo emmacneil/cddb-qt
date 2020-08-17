@@ -19,8 +19,8 @@ private:
     QGroupBox *genreListGroupBox;
     QGroupBox *detailsGroupBox;
     QPushButton *refreshButton;
-    QSqlQueryModel *queryModel;
     QTableView *tableView;
+    QSqlQueryModel *queryModel;
     MarkdownView *markdownView;
 
     void initGenreListGroupBox();
