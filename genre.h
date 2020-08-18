@@ -5,17 +5,38 @@
 #include <string>
 #include <vector>
 
-namespace Cddb {
+#include <QString>
+
+namespace cddb {
 class Genre
 {
 public:
-    Genre();
+    Genre() : id(0), name(""), parentIDs(), similarIDs(), notes("") {}
+    Genre(int id, QString name) : id(id), name(name), parentIDs(), similarIDs(), notes("") {}
+
+    void addParentID(int parentID);
+    void addSimilarID(int similarID);
+
+    int getID() {return id;}
+    QString getName() {return name;}
+    QString getNotes() {return notes;}
+
+    bool isParent(int parentID);
+
+    void removeParentID(int parentID);
+
+    void setID(int newID) {id = newID;}
+    void setName(QString newName) {name = newName;}
+    void setNotes(QString newNotes) {notes= newNotes;}
+
 private:
-    // TODO: Change string to something with unicode support --- ICU?
-    std::string name; // Name of genre
-    std::optional<int> parentID; // ID number of parent genre
-    std::vector<int> relatedGenreIDs; // ID numbers of related genres
-    std::string notes; // Notes about the genre
+    int id;
+    QString name; // Name of genre
+    std::vector<int> parentIDs; // ID numbers of parent genres
+    std::vector<int> similarIDs; // ID numbers of similar genres
+    QString notes; // Notes about the genre
+
+    int indexOfParentID(int parentID);
 };
 }
 #endif // GENRE_H

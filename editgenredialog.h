@@ -6,7 +6,10 @@
 class EditGenreDialog : public GenreDialog
 {
 public:
-    EditGenreDialog(QWidget *parent = 0);
+    EditGenreDialog(int genreID, QWidget *parent = 0);
+
+private:
+    int genreID;
 
 private slots:
     void editGenreInDatabase();

@@ -9,7 +9,6 @@
 
 #include <QtSql/QtSql>
 #include <QSplitter>
-//#include <QtGlobal>
 #include <QGroupBox>
 #include <QHBoxLayout>
 
@@ -19,10 +18,6 @@ MainWindow::MainWindow(QWidget *parent) :
     qDebug() << "Qt Version" << qVersion();
     createActions();
     createMenus();
-
-    // Open connection to database
-    addSqlConnection();
-    createDatabase();
 
     tabWidget = new QTabWidget();
     tabWidget->addTab(new AlbumView, tr("&1: Albums"));
@@ -35,18 +30,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
-}
-
-void MainWindow::addSqlConnection()
-{
-    // If database does not exist, create it.
-    // Create connection
-    QString filename = "./cddb.db";
-    QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
-    db.setDatabaseName(filename);
-    if (!db.open())
-        qCritical() << "Could not open SQLite database!";
-    qDebug() << "Connection name is '" << db.connectionName() << "'";
 }
 
 void MainWindow::addGenre()
@@ -87,67 +70,6 @@ void MainWindow::createActions()
     aboutAct->setEnabled(false);
 }
 
-void MainWindow::createDatabase()
-{
-    QSqlQuery q("");
-    q.exec("drop table if exists artist");
-    q.exec("create table if not exists artist ("
-           "id integer primary key,"
-           "name varchar,"
-           "country varchar,"
-           "notes varchar"
-           ")");
-    q.exec("insert into artist (name, country) values"
-           "('Primal Scream', 'United Kingdom'),"
-           "('Hooverphonic', 'Belgium'),"
-           "('sugar plant', 'Japan'),"
-           "('Supercar', 'Japan')");
-
-    q.exec("drop table if exists album");
-    q.exec("create table if not exists album ("
-           "id integer primary key,"
-           "title varchar not null,"
-           "release_year integer,"
-           "release_month integer,"
-           "release_day integer"
-           ")");
-    q.exec("insert into album (title, release_year) values"
-           "('More Light', 2013),"
-           "('A New Stereophonic Sound Spectacular', 1996)");
-
-    q.exec("drop table if exists genre");
-    q.exec("create table if not exists genre ("
-           "id integer primary key,"
-           "name varchar not null,"
-           "notes varchar"
-           ")");
-    q.exec("insert into genre (name) values"
-           "('Dream Pop & Shoegaze'),"
-           "('New Wave'),"
-           "('Post-punk'),"
-           "('Psychedelia')");
-    
-    q.exec("drop table if exists parent_genre_relation");
-    q.exec("create table if not exists parent_genre_relation ("
-           "parent integer,"
-           "child integer,"
-           "foreign key(parent) references genre(id),"
-           "foreign key(child) references genre(id)"
-           ")");
-    q.exec("insert into parent_genre_relation (parent, child) values"
-           "(4, 1)");
-    
-    q.exec("drop table if exists similar_genre_relation");
-    q.exec("create table if not exists similar_genre_relation ("
-           "genre1 integer,"
-           "genre2 integer,"
-           "foreign key(genre1) references genre(id),"
-           "foreign key(genre2) references genre(id)"
-           ")");
-    q.exec("insert into similar_genre_relation (genre1, genre2) values"
-           "(2, 3)");
-}
-
 void MainWindow::createMenus()
 {
     // Create the File, Edit, Help, etc. menus
@@ -171,7 +93,7 @@ void MainWindow::createMenus()
 
 void MainWindow::editGenre()
 {
-    EditGenreDialog dialog(this);
+    EditGenreDialog dialog(1, this);
     dialog.exec();
 }
 

@@ -36,9 +36,7 @@ private:
     QMenu *editMenu;
     QMenu *helpMenu;
     QTabWidget *tabWidget;
-    void addSqlConnection();
     void createActions();
-    void createDatabase();
     void createMenus();
 };
 
