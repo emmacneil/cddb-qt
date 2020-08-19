@@ -5,6 +5,8 @@
 int main(int argc, char *argv[])
 {
     cddb::init("./cddb.db");
+    cddb::seedDatabase();
+
     QApplication a(argc, argv);
     MainWindow w;
     w.show();

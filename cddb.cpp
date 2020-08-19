@@ -23,7 +23,6 @@ std::optional<cddb::Genre> cddb::getGenre(int genreID)
         while (query.next())
             genre.addParentID(query.value("parent").toInt());
 
-        /*
         // Find similar genre IDs
         query.prepare("SELECT genre2 FROM similar_genre_relation WHERE genre1 = ?");
         query.bindValue(0, genreID);
@@ -35,7 +34,6 @@ std::optional<cddb::Genre> cddb::getGenre(int genreID)
         query.exec();
         while (query.next())
             genre.addSimilarID(query.value("genre1").toInt());
-        */
         return genre;
     }
 

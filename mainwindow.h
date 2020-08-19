@@ -1,6 +1,10 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include "albumview.h"
+#include "artistview.h"
+#include "genreview.h"
+
 #include <QMenu>
 #include <QMenuBar>
 #include <QMainWindow>
@@ -23,6 +27,10 @@ private slots:
     void quit();
 
 private:
+    AlbumView *albumView;
+    ArtistView *artistView;
+    GenreView *genreView;
+
     QAction *aboutAct;
     QAction *addAlbumAct;
     QAction *addArtistAct;

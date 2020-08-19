@@ -25,8 +25,19 @@ GenreView::GenreView() : QSplitter()
     int w = width()/2;
     QList<int> sizes = {w, w};
     setSizes(sizes);
+    connect(tableView, &QTableView::clicked, this, &GenreView::updateMarkdownView); // TODO: This does not cause the markdown view to be updated when the user changes the selected row with the arrow keys.
+}
 
-    connect(tableView, &QTableView::clicked, this, &GenreView::updateMarkdownView);
+std::optional<int> GenreView::getSelectedGenreID()
+{
+    QItemSelectionModel *selectionModel = tableView->selectionModel();
+    QList<QModelIndex> selectedRows = selectionModel->selectedRows();
+    if (selectedRows.size() == 1)
+    {
+        QModelIndex i = selectedRows[0];
+        return tableView->model()->data(i).toInt();
+    }
+    return {};
 }
 
 void GenreView::initDetailsGroupBox()

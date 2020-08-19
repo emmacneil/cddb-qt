@@ -1,8 +1,5 @@
 #include "addgenredialog.h"
-#include "albumview.h"
-#include "artistview.h"
 #include "editgenredialog.h"
-#include "genreview.h"
 #include "mainwindow.h"
 //#include "ui_mainwindow.h"
 
@@ -20,9 +17,12 @@ MainWindow::MainWindow(QWidget *parent) :
     createMenus();
 
     tabWidget = new QTabWidget();
-    tabWidget->addTab(new AlbumView, tr("&1: Albums"));
-    tabWidget->addTab(new ArtistView, tr("&2: Artists"));
-    tabWidget->addTab(new GenreView, tr("&3: Genres"));
+    albumView = new AlbumView;
+    artistView = new ArtistView;
+    genreView = new GenreView;
+    tabWidget->addTab(albumView, tr("&1: Albums"));
+    tabWidget->addTab(artistView, tr("&2: Artists"));
+    tabWidget->addTab(genreView, tr("&3: Genres"));
     setCentralWidget(tabWidget);
 
     showMaximized();
@@ -93,8 +93,16 @@ void MainWindow::createMenus()
 
 void MainWindow::editGenre()
 {
-    EditGenreDialog dialog(1, this);
-    dialog.exec();
+    std::optional<int> genreID = genreView->getSelectedGenreID();
+    if (genreID.has_value())
+    {
+        EditGenreDialog dialog(genreID.value(), this);
+        dialog.exec();
+    }
+    else
+    {
+        qWarning() << "Attempted to edit genre when no genre was selected.";
+    }
 }
 
 

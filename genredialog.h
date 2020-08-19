@@ -7,6 +7,7 @@
 #include <QDialogButtonBox>
 #include <QLineEdit>
 #include <QListWidget>
+#include <QPushButton>
 #include <QTextEdit>
 
 class GenreDialog : public QDialog
@@ -24,6 +25,10 @@ protected:
     QLineEdit *nameLineEdit;
     QListWidget *parentListWidget;
     QListWidget *similarListWidget;
+    QPushButton *parentAddButton;
+    QPushButton *parentRemoveButton;
+    QPushButton *similarAddButton;
+    QPushButton *similarRemoveButton;
     QTextEdit *notesTextEdit;
 
     void addGenre(QListWidget *listWidget, QComboBox *comboBox);

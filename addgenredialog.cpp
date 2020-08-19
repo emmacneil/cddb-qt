@@ -52,7 +52,7 @@ void AddGenreDialog::addGenreToDatabase()
         query.exec();
     }
 
-    // For each similargenre, create a relation in the database
+    // For each similar genre, create a relation in the database
     for (QString s : similarGenres)
     {
         query.prepare("SELECT id FROM genre WHERE name = ?");

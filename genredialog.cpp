@@ -4,7 +4,6 @@
 #include <QFormLayout>
 #include <QGroupBox>
 #include <QHBoxLayout>
-#include <QPushButton>
 #include <QVBoxLayout>
 
 #include <QSqlQuery>
@@ -40,8 +39,8 @@ GenreDialog::GenreDialog(QWidget *parent) : QDialog(parent)
     QGridLayout *parentGroupBoxLayout = new QGridLayout;
     parentComboBox = new QComboBox;
     parentListWidget = new QListWidget;
-    QPushButton *parentAddButton = new QPushButton(tr("Add"));
-    QPushButton *parentRemoveButton = new QPushButton(tr("Remove"));
+    parentAddButton = new QPushButton(tr("Add"));
+    parentRemoveButton = new QPushButton(tr("Remove"));
     parentComboBox->addItems(genreList);
     parentGroupBoxLayout->addWidget(parentComboBox, 0, 0);
     parentGroupBoxLayout->addWidget(parentAddButton, 0, 1);
@@ -56,8 +55,8 @@ GenreDialog::GenreDialog(QWidget *parent) : QDialog(parent)
     QGridLayout *similarGroupBoxLayout = new QGridLayout;
     similarComboBox = new QComboBox;
     similarListWidget = new QListWidget;
-    QPushButton *similarAddButton = new QPushButton(tr("Add"));
-    QPushButton *similarRemoveButton = new QPushButton(tr("Remove"));
+    similarAddButton = new QPushButton(tr("Add"));
+    similarRemoveButton = new QPushButton(tr("Remove"));
     similarComboBox->addItems(genreList);
     similarGroupBoxLayout->addWidget(similarComboBox, 0, 0);
     similarGroupBoxLayout->addWidget(similarAddButton, 0, 1);

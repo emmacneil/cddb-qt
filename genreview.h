@@ -14,6 +14,7 @@ class GenreView : public QSplitter
 {
 public:
     GenreView();
+    std::optional<int> getSelectedGenreID();
 
 private:
     QGroupBox *genreListGroupBox;
