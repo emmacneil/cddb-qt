@@ -1,5 +1,6 @@
 #include "addartistdialog.h"
 #include "addgenredialog.h"
+#include "editartistdialog.h"
 #include "editgenredialog.h"
 #include "mainwindow.h"
 //#include "ui_mainwindow.h"
@@ -57,10 +58,11 @@ void MainWindow::createActions()
     editAlbumAct->setEnabled(false);
 
     editArtistAct = new QAction(tr("Edit A&rtist..."));
-    editArtistAct->setEnabled(false);
+    editArtistAct->setStatusTip(tr("Edit an artist in the database"));
+    connect(editArtistAct, &QAction::triggered, this, &MainWindow::editArtist);
 
     editGenreAct = new QAction(tr("Edit &Genre..."));
-    editGenreAct->setStatusTip(tr("Edit a new genre in the database"));
+    editGenreAct->setStatusTip(tr("Edit a genre in the database"));
     connect(editGenreAct, &QAction::triggered, this, &MainWindow::editGenre);
 
     addAlbumAct = new QAction(tr("Add &Album..."));
@@ -99,6 +101,20 @@ void MainWindow::createMenus()
     helpMenu->addAction(aboutAct);
 }
 
+void MainWindow::editArtist()
+{
+    std::optional<int> artistID = artistView->getSelectedArtistID();
+    if (artistID.has_value())
+    {
+        EditArtistDialog dialog(artistID.value(), this);
+        dialog.exec();
+    }
+    else
+    {
+        qWarning() << "Attempted to edit artist when no artist was selected.";
+    }
+}
+
 void MainWindow::editGenre()
 {
     std::optional<int> genreID = genreView->getSelectedGenreID();
@@ -112,7 +128,6 @@ void MainWindow::editGenre()
         qWarning() << "Attempted to edit genre when no genre was selected.";
     }
 }
-
 
 void MainWindow::quit()
 {

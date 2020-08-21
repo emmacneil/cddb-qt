@@ -5,6 +5,27 @@
 #include <QSqlDatabase>
 #include <QSqlQuery>
 
+std::optional<cddb::Artist> cddb::getArtist(int artistID)
+{
+    QSqlQuery query;
+    query.prepare("SELECT * FROM artist WHERE id = ?");
+    query.bindValue(0, artistID);
+    query.exec();
+    if (query.next())
+    {
+        cddb::Artist artist;
+        artist.setID(query.value("id").toInt());
+        artist.setName(query.value("name").toString());
+        artist.setSortName(query.value("sort_name").toString());
+        artist.setLocalizedName(query.value("localized_name").toString());
+        artist.setCountry(query.value("country").toString());
+        artist.setNotes(query.value("notes").toString());
+        return artist;
+    }
+
+    return {};
+}
+
 std::optional<cddb::Genre> cddb::getGenre(int genreID)
 {
     QSqlQuery query;
@@ -115,4 +136,5 @@ void cddb::seedDatabase()
            "foreign key(genre2) references genre(id)"
            ")");
     q.exec("insert into similar_genre_relation (genre1, genre2) values"
-           "(2, 3)");}
+           "(2, 3)");
+}

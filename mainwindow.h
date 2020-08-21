@@ -24,6 +24,7 @@ public:
 private slots:
     void addArtist();
     void addGenre();
+    void editArtist();
     void editGenre();
     void quit();
 

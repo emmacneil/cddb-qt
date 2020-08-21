@@ -28,8 +28,10 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     addartistdialog.cpp \
+    artist.cpp \
     artistdialog.cpp \
     cddb.cpp \
+    editartistdialog.cpp \
     editgenredialog.cpp \
     genredialog.cpp \
         main.cpp \
@@ -43,8 +45,10 @@ SOURCES += \
 
 HEADERS += \
     addartistdialog.h \
+    artist.h \
     artistdialog.h \
     cddb.h \
+    editartistdialog.h \
     editgenredialog.h \
     genredialog.h \
         mainwindow.h \

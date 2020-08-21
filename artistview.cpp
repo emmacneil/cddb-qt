@@ -28,8 +28,18 @@ ArtistView::ArtistView() : QSplitter()
     setSizes(sizes);
 
     connect(tableView, &QTableView::clicked, this, &ArtistView::updateMarkdownView);
+}
 
-    updateArtistList();
+std::optional<int> ArtistView::getSelectedArtistID()
+{
+    QItemSelectionModel *selectionModel = tableView->selectionModel();
+    QList<QModelIndex> selectedRows = selectionModel->selectedRows();
+    if (selectedRows.size() == 1)
+    {
+        QModelIndex i = selectedRows[0];
+        return tableView->model()->data(i).toInt();
+    }
+    return {};
 }
 
 void ArtistView::initDetailsGroupBox()
@@ -55,6 +65,7 @@ void ArtistView::initResultsGroupBox()
     // Create a QTableView widget to show the search results in a table
     tableView = new QTableView;
     tableView->setModel(queryModel);
+    tableView->hideColumn(0);
     tableView->resizeColumnsToContents();
     tableView->show();
     tableLayout->addWidget(tableView);
@@ -67,13 +78,15 @@ void ArtistView::initResultsGroupBox()
 void ArtistView::initSearchGroupBox()
 {
     searchGroupBox  = new QGroupBox(tr("Search"));
+    updateArtistList();
 }
 
 void ArtistView::updateArtistList()
 {
-    queryModel->setQuery("SELECT name, country FROM artist");
-    queryModel->setHeaderData(0, Qt::Horizontal, tr("Artist"));
-    queryModel->setHeaderData(1, Qt::Horizontal, tr("Country"));
+    queryModel->setQuery("SELECT id, name, country FROM artist");
+    queryModel->setHeaderData(0, Qt::Horizontal, tr("ID"));
+    queryModel->setHeaderData(1, Qt::Horizontal, tr("Artist"));
+    queryModel->setHeaderData(2, Qt::Horizontal, tr("Country"));
 }
 
 void ArtistView::updateMarkdownView()

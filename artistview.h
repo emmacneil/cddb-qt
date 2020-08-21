@@ -14,6 +14,8 @@ class ArtistView : public QSplitter
 public:
     ArtistView();
 
+    std::optional<int> getSelectedArtistID();
+
 private:
     QGroupBox *searchGroupBox;
     QGroupBox *resultsGroupBox;
