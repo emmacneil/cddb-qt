@@ -27,6 +27,8 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 
 SOURCES += \
+    addartistdialog.cpp \
+    artistdialog.cpp \
     cddb.cpp \
     editgenredialog.cpp \
     genredialog.cpp \
@@ -40,6 +42,8 @@ SOURCES += \
     markdownview.cpp
 
 HEADERS += \
+    addartistdialog.h \
+    artistdialog.h \
     cddb.h \
     editgenredialog.h \
     genredialog.h \

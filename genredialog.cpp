@@ -1,6 +1,5 @@
 #include "genredialog.h"
 
-#include <QDialogButtonBox>
 #include <QFormLayout>
 #include <QGroupBox>
 #include <QHBoxLayout>

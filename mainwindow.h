@@ -22,6 +22,7 @@ public:
     ~MainWindow();
 
 private slots:
+    void addArtist();
     void addGenre();
     void editGenre();
     void quit();

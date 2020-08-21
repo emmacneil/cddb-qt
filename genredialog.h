@@ -17,7 +17,6 @@ public:
     GenreDialog(QWidget *parent = 0);
 
 protected:
-    //Ui::MainWindow *ui;
     QStringList genreList;
     QComboBox *parentComboBox;
     QComboBox *similarComboBox;

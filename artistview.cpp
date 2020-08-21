@@ -2,6 +2,7 @@
 
 #include <QHBoxLayout>
 #include <QList>
+#include <QPushButton>
 #include <QTableView>
 
 #include <QSqlQuery>
@@ -27,6 +28,8 @@ ArtistView::ArtistView() : QSplitter()
     setSizes(sizes);
 
     connect(tableView, &QTableView::clicked, this, &ArtistView::updateMarkdownView);
+
+    updateArtistList();
 }
 
 void ArtistView::initDetailsGroupBox()
@@ -46,7 +49,7 @@ void ArtistView::initResultsGroupBox()
     resultsGroupBox = new QGroupBox(tr("Results"));
 
     // Add a layout to the QGroupBox
-    QHBoxLayout *tableLayout = new QHBoxLayout;
+    QVBoxLayout *tableLayout = new QVBoxLayout;
     resultsGroupBox->setLayout(tableLayout);
 
     // Create a QTableView widget to show the search results in a table
@@ -55,13 +58,19 @@ void ArtistView::initResultsGroupBox()
     tableView->resizeColumnsToContents();
     tableView->show();
     tableLayout->addWidget(tableView);
+
+    QPushButton *refreshButton = new QPushButton(tr("&Refresh"));
+    tableLayout->addWidget(refreshButton);
+    connect(refreshButton, &QPushButton::clicked, this, &ArtistView::updateArtistList);
 }
 
 void ArtistView::initSearchGroupBox()
 {
     searchGroupBox  = new QGroupBox(tr("Search"));
+}
 
-    // TODO: This code bit probably makes more sense in another method
+void ArtistView::updateArtistList()
+{
     queryModel->setQuery("SELECT name, country FROM artist");
     queryModel->setHeaderData(0, Qt::Horizontal, tr("Artist"));
     queryModel->setHeaderData(1, Qt::Horizontal, tr("Country"));

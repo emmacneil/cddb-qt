@@ -62,6 +62,8 @@ void cddb::seedDatabase()
     q.exec("create table if not exists artist ("
            "id integer primary key,"
            "name varchar,"
+           "sort_name varchar,"
+           "localized_name varchar,"
            "country varchar,"
            "notes varchar"
            ")");
@@ -86,7 +88,7 @@ void cddb::seedDatabase()
     q.exec("drop table if exists genre");
     q.exec("create table if not exists genre ("
            "id integer primary key,"
-           "name varchar not null,"
+           "name varchar not null unique,"
            "notes varchar"
            ")");
     q.exec("insert into genre (name) values"

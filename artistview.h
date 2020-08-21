@@ -27,6 +27,7 @@ private:
     void initDetailsGroupBox();
 
 private slots:
+    void updateArtistList();
     void updateMarkdownView();
 };
 

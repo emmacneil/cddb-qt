@@ -1,3 +1,4 @@
+#include "addartistdialog.h"
 #include "addgenredialog.h"
 #include "editgenredialog.h"
 #include "mainwindow.h"
@@ -32,6 +33,12 @@ MainWindow::~MainWindow()
 {
 }
 
+void MainWindow::addArtist()
+{
+    AddArtistDialog dialog(this);
+    dialog.exec();
+}
+
 void MainWindow::addGenre()
 {
     AddGenreDialog dialog(this);
@@ -60,7 +67,8 @@ void MainWindow::createActions()
     addAlbumAct->setEnabled(false);
 
     addArtistAct = new QAction(tr("Add A&rtist..."));
-    addArtistAct->setEnabled(false);
+    addArtistAct->setStatusTip(tr("Add a new artist to the database"));
+    connect(addArtistAct, &QAction::triggered, this, &MainWindow::addArtist);
 
     addGenreAct = new QAction(tr("Add &Genre..."));
     addGenreAct->setStatusTip(tr("Add a new genre to the database"));

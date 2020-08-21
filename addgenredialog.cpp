@@ -11,6 +11,12 @@ AddGenreDialog::AddGenreDialog(QWidget *parent) : GenreDialog(parent)
 
 void AddGenreDialog::addGenreToDatabase()
 {
+    // TODO: Still need to some data validation
+    //       In particular, we should make sure a genre name was entered
+    //       and that it is distinct from any other genre's name
+    //       Are these already enforced by the database table (NOT NULL, UNIQUE?)
+    //       We should check whether the INSERT INTO query was successfully exectured.
+
     // Get data from dialog box's widgets
     QString genreName = nameLineEdit->text();
     QStringList parentGenres;
