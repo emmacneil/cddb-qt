@@ -67,6 +67,8 @@ void ArtistView::initResultsGroupBox()
     tableView->setModel(queryModel);
     tableView->hideColumn(0);
     tableView->resizeColumnsToContents();
+    tableView->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
     tableView->show();
     tableLayout->addWidget(tableView);
 

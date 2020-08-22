@@ -79,6 +79,19 @@ void cddb::init(QString filename)
 void cddb::seedDatabase()
 {
     QSqlQuery q("");
+    q.exec("DROP TABLE IF EXISTS release_type");
+    q.exec("CREATE TABLE IF NOT EXISTS release_type ("
+           "id INTEGER PRIMARY KEY,"
+           "type VARCHAR UNIQUE"
+           ")");
+    q.exec("INSERT INTO release_type (type) VALUES"
+           "('Album'),"
+           "('Mini-album'),"
+           "('EP'),"
+           "('Single'),"
+           "('Compilation'),"
+           "('V/A Compilation')");
+
     q.exec("drop table if exists artist");
     q.exec("create table if not exists artist ("
            "id integer primary key,"

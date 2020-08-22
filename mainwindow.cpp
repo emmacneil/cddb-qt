@@ -1,10 +1,10 @@
+#include "addalbumdialog.h"
 #include "addartistdialog.h"
 #include "addgenredialog.h"
+#include "editalbumdialog.h"
 #include "editartistdialog.h"
 #include "editgenredialog.h"
 #include "mainwindow.h"
-//#include "ui_mainwindow.h"
-
 
 #include <QtSql/QtSql>
 #include <QSplitter>
@@ -34,6 +34,12 @@ MainWindow::~MainWindow()
 {
 }
 
+void MainWindow::addAlbum()
+{
+    AddAlbumDialog dialog(this);
+    dialog.exec();
+}
+
 void MainWindow::addArtist()
 {
     AddArtistDialog dialog(this);
@@ -55,7 +61,8 @@ void MainWindow::createActions()
     connect(quitAct, &QAction::triggered, this, &MainWindow::quit);
 
     editAlbumAct = new QAction(tr("Edit &Album..."));
-    editAlbumAct->setEnabled(false);
+    editAlbumAct->setStatusTip(tr("Edit an album in the database"));
+    connect(editAlbumAct, &QAction::triggered, this, &MainWindow::editAlbum);
 
     editArtistAct = new QAction(tr("Edit A&rtist..."));
     editArtistAct->setStatusTip(tr("Edit an artist in the database"));
@@ -66,7 +73,8 @@ void MainWindow::createActions()
     connect(editGenreAct, &QAction::triggered, this, &MainWindow::editGenre);
 
     addAlbumAct = new QAction(tr("Add &Album..."));
-    addAlbumAct->setEnabled(false);
+    addAlbumAct->setStatusTip(tr("Add a new album to the database"));
+    connect(addAlbumAct, &QAction::triggered, this, &MainWindow::addAlbum);
 
     addArtistAct = new QAction(tr("Add A&rtist..."));
     addArtistAct->setStatusTip(tr("Add a new artist to the database"));
@@ -99,6 +107,12 @@ void MainWindow::createMenus()
 
     helpMenu = menuBar()->addMenu(tr("&Help"));
     helpMenu->addAction(aboutAct);
+}
+
+void MainWindow::editAlbum()
+{
+    EditAlbumDialog dialog(0, this);
+    dialog.exec();
 }
 
 void MainWindow::editArtist()

@@ -27,10 +27,13 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 
 SOURCES += \
+    addalbumdialog.cpp \
     addartistdialog.cpp \
+    albumdialog.cpp \
     artist.cpp \
     artistdialog.cpp \
     cddb.cpp \
+    editalbumdialog.cpp \
     editartistdialog.cpp \
     editgenredialog.cpp \
     genredialog.cpp \
@@ -44,10 +47,13 @@ SOURCES += \
     markdownview.cpp
 
 HEADERS += \
+    addalbumdialog.h \
     addartistdialog.h \
+    albumdialog.h \
     artist.h \
     artistdialog.h \
     cddb.h \
+    editalbumdialog.h \
     editartistdialog.h \
     editgenredialog.h \
     genredialog.h \

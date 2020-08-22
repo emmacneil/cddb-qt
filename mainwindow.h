@@ -22,8 +22,10 @@ public:
     ~MainWindow();
 
 private slots:
+    void addAlbum();
     void addArtist();
     void addGenre();
+    void editAlbum();
     void editArtist();
     void editGenre();
     void quit();
