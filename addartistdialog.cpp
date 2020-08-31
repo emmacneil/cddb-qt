@@ -1,5 +1,7 @@
 #include "addartistdialog.h"
 
+#include <QDebug>
+
 #include <QSqlQuery>
 
 AddArtistDialog::AddArtistDialog(QWidget *parent) : ArtistDialog(parent)
@@ -11,10 +13,16 @@ AddArtistDialog::AddArtistDialog(QWidget *parent) : ArtistDialog(parent)
 
 void AddArtistDialog::addArtistToDatabase()
 {
+    // Make sure a name was provided
+    if (nameLineEdit->text() == "")
+    {
+        qWarning() << "Attempted to add unnamed artist to databse";
+        reject(); // TODO: This should make a warning dialog appear instead!
+    }
     QSqlQuery query;
     query.prepare("INSERT INTO artist (name, sort_name, localized_name, country, notes) values (?, ?, ?, ?, ?)");
     query.bindValue(0, nameLineEdit->text());
-    query.bindValue(1, sortNameLineEdit->text());
+    query.bindValue(1, sortNameLineEdit->text() == QString("") ? nameLineEdit->text() : sortNameLineEdit->text());
     query.bindValue(2, localizedNameLineEdit->text());
     query.bindValue(3, countryLineEdit->text());
     query.bindValue(4, notesTextEdit->toPlainText());

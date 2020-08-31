@@ -7,6 +7,9 @@ class AddAlbumDialog : public AlbumDialog
 {
 public:
     AddAlbumDialog(QWidget *parent = 0);
+
+private:
+    void addAlbumToDatabase();
 };
 
 #endif // ADDALBUMDIALOG_H

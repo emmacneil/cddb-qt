@@ -29,6 +29,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
     addalbumdialog.cpp \
     addartistdialog.cpp \
+    album.cpp \
     albumdialog.cpp \
     artist.cpp \
     artistdialog.cpp \
@@ -44,11 +45,14 @@ SOURCES += \
     artistview.cpp \
     genreview.cpp \
     albumview.cpp \
-    markdownview.cpp
+    markdownview.cpp \
+    partialdate.cpp \
+    partialdateedit.cpp
 
 HEADERS += \
     addalbumdialog.h \
     addartistdialog.h \
+    album.h \
     albumdialog.h \
     artist.h \
     artistdialog.h \
@@ -63,6 +67,8 @@ HEADERS += \
     artistview.h \
     genreview.h \
     albumview.h \
-    markdownview.h
+    markdownview.h \
+    partialdate.h \
+    partialdateedit.h
 
 FORMS +=

@@ -3,7 +3,260 @@
 #include <QDebug>
 
 #include <QSqlDatabase>
+#include <QSqlError>
 #include <QSqlQuery>
+
+void cddb::addAlbum(cddb::Album &album)
+{
+    QSqlQuery query;
+
+    // Make sure album ID is zero.
+    // A non-zero ID may be an attempt to re-add an existing album to the database.
+    if (album.getId() != 0)
+        throw std::invalid_argument("Album must have ID = 0 to add to database");
+
+    // Insert album into database
+    query.prepare("INSERT INTO album (title, sort_title, localized_title, release_year, "
+                  "release_month, release_day, backlogged, owned, seeking, wishlisted, notes) VALUES "
+                  "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    query.bindValue(0, album.getTitle());
+    query.bindValue(1, album.getSortTitle());
+    query.bindValue(2, album.getLocalizedTitle());
+    query.bindValue(3, album.getReleaseDate().getYear());
+    query.bindValue(4, album.getReleaseDate().getMonth());
+    query.bindValue(5, album.getReleaseDate().getDay());
+    query.bindValue(6, album.isBacklogged());
+    query.bindValue(7, album.isOwned());
+    query.bindValue(8, album.isSeeking());
+    query.bindValue(9, album.isWishlisted());
+    query.bindValue(10, album.getNotes());
+    if (!query.exec())
+        throw std::runtime_error(query.lastError().text().toStdString());
+
+    // Insert album rating into database
+    if (album.getRating() != 0)
+    {
+        query.prepare("INSERT INTO album_rating_relation (album_id, rating_id) VALUES (?, ?)");
+        query.bindValue(0, album.getId());
+        query.bindValue(1, album.getRating());
+        if (!query.exec())
+            throw std::runtime_error(query.lastError().text().toStdString());
+    }
+
+    // Insert album artists into database
+    for (int artistID : album.getArtists())
+    {
+        query.prepare("INSERT INTO album_artist_relation(album_id, artist_id) VALUES (?, ?)");
+        query.bindValue(0, album.getId());
+        query.bindValue(1, artistID);
+        if (!query.exec())
+            throw std::runtime_error(query.lastError().text().toStdString());
+    }
+
+    // Insert album featured artists into database
+    for (int artistID : album.getFeaturedArtists())
+    {
+        query.prepare("INSERT INTO album_featured_artist_relation(album_id, artist_id) VALUES (?, ?)");
+        query.bindValue(0, album.getId());
+        query.bindValue(1, artistID);
+        if (!query.exec())
+            throw std::runtime_error(query.lastError().text().toStdString());
+    }
+
+    // Insert album genres into database
+    for (int genreID : album.getGenres())
+    {
+        query.prepare("INSERT INTO album_genre_relation(album_id, genre_id) VALUES (?, ?)");
+        query.bindValue(0, album.getId());
+        query.bindValue(1, genreID);
+        if (!query.exec())
+            throw std::runtime_error(query.lastError().text().toStdString());
+    }
+}
+
+void cddb::createTables()
+{
+    QSqlQuery q;
+    q.exec("CREATE TABLE IF NOT EXISTS release_type ("
+           "id   INTEGER PRIMARY KEY,"
+           "type VARCHAR UNIQUE,"
+           "multiplier INTEGER"
+           ")");
+    q.exec("CREATE TABLE IF NOT EXISTS rating ("
+           "id     INTEGER PRIMARY KEY,"
+           "letter VARCHAR NOT NULL UNIQUE,"
+           "grade  REAL    NOT NULL"
+           ")");
+
+    q.exec("CREATE TABLE IF NOT EXISTS artist ("
+           "id             INTEGER PRIMARY KEY,"
+           "name           VARCHAR NOT NULL,"
+           "sort_name      VARCHAR NOT NULL,"
+           "localized_name VARCHAR,"
+           "country        VARCHAR,"
+           "notes          VARCHAR,"
+           "score          INTEGER"
+           ")");
+    q.exec("CREATE TABLE IF NOT EXISTS album ("
+           "id              INTEGER PRIMARY KEY,"
+           "title           VARCHAR NOT NULL,"
+           "sort_title      VARCHAR NOT NULL,"
+           "localized_title VARCHAR,"
+           "release_year    INTEGER,"
+           "release_month   INTEGER,"
+           "release_day     INTEGER,"
+           "backlogged      BOOLEAN,"
+           "owned           BOOLEAN,"
+           "seeking         BOOLEAN,"
+           "wishlisted      BOOLEAN,"
+           "notes           VARCHAR"
+           ")");
+    q.exec("CREATE TABLE IF NOT EXISTS genre ("
+           "id    INTEGER PRIMARY KEY,"
+           "name  VARCHAR NOT NULL UNIQUE,"
+           "notes VARCHAR"
+           ")");
+
+    q.exec("CREATE TABLE IF NOT EXISTS album_artist_relation ("
+           "album_id  INTEGER NOT NULL,"
+           "artist_id INTEGER NOT NULL,"
+           "FOREIGN KEY(album_id)  REFERENCES album(id),"
+           "FOREIGN KEY(artist_id) REFERENCES artist(id)"
+           ")");
+    q.exec("CREATE TABLE IF NOT EXISTS album_featured_artist_relation ("
+           "album_id  INTEGER NOT NULL,"
+           "artist_id INTEGER NOT NULL,"
+           "FOREIGN KEY(album_id)  REFERENCES album(id),"
+           "FOREIGN KEY(artist_id) REFERENCES artist(id)"
+           ")");
+    q.exec("CREATE TABLE IF NOT EXISTS album_genre_relation ("
+           "album_id  INTEGER NOT NULL,"
+           "genre_id  INTEGER NOT NULL,"
+           "FOREIGN KEY(album_id) REFERENCES album(id),"
+           "FOREIGN KEY(genre_id) REFERENCES genre(id)"
+           ")");
+    q.exec("CREATE TABLE IF NOT EXISTS album_rating_relation ("
+           "album_id  INTEGER NOT NULL UNIQUE,"
+           "rating_id INTEGER NOT NULL,"
+           "FOREIGN KEY(album_id)  REFERENCES album(id),"
+           "FOREIGN KEY(rating_id) REFERENCES rating(id)"
+           ")");
+    q.exec("CREATE TABLE IF NOT EXISTS parent_genre_relation ("
+           "parent INTEGER NOT NULL,"
+           "child  INTEGER NOT NULL,"
+           "FOREIGN KEY(parent) REFERENCES genre(id),"
+           "FOREIGN KEY(child)  REFERENCES genre(id)"
+           ")");
+    q.exec("CREATE TABLE IF NOT EXISTS similar_genre_relation ("
+           "genre1 INTEGER NOT NULL,"
+           "genre2 INTEGER NOT NULL,"
+           "FOREIGN KEY(genre1) REFERENCES genre(id),"
+           "FOREIGN KEY(genre2) REFERENCES genre(id)"
+           ")");
+}
+
+void cddb::dropTables()
+{
+    QSqlQuery q;
+    q.exec("DROP TABLE IF EXISTS release_type");
+    q.exec("DROP TABLE IF EXISTS rating");
+    q.exec("DROP TABLE IF EXISTS artist");
+    q.exec("DROP TABLE IF EXISTS album");
+    q.exec("DROP TABLE IF EXISTS genre");
+    q.exec("DROP TABLE IF EXISTS album_artist_relation");
+    q.exec("DROP TABLE IF EXISTS album_featured_artist_relation");
+    q.exec("DROP TABLE IF EXISTS album_genre_relation");
+    q.exec("DROP TABLE IF EXISTS album_rating_relation");
+    q.exec("DROP TABLE IF EXISTS parent_genre_relation");
+    q.exec("DROP TABLE IF EXISTS similar_genre_relation");
+}
+
+std::optional<cddb::Album> cddb::getAlbum(int albumID)
+{
+    QSqlQuery query, innerQuery;
+    query.prepare("SELECT * FROM album WHERE id = ?");
+    query.bindValue(0, albumID);
+    query.exec();
+    if (query.next())
+    {
+        cddb::Album album(query.value("id").toInt());
+        album.setTitle(query.value("title").toString());
+        album.setSortTitle(query.value("srt_title").toString());
+        if (!query.value("localized_title").toString().isEmpty())
+            album.setLocalizedTitle(query.value("localized_title").toString());
+
+        album.setReleaseDate(PartialDate(
+                                 query.value("release_year").toInt(),
+                                 query.value("release_month").toInt(),
+                                 query.value("release_day").toInt()));
+        std::optional<int> opt = getAlbumRatingID(albumID);
+        album.setRating(opt.has_value() ? opt.value() : 0);
+
+        std::vector<int> vec;
+        vec = cddb::getAlbumArtistIDs(albumID);
+        album.setArtistIDs(vec);
+        vec = cddb::getAlbumFeaturedArtistIDs(albumID);
+        album.setFeaturedArtistIDs(vec);
+        vec = cddb::getAlbumGenreIDs(albumID);
+        album.setGenreIDs(vec);
+
+        album.setBacklogged(query.value("backlogged").toBool());
+        album.setOwned(query.value("owned").toBool());
+        album.setSeeking(query.value("seeking").toBool());
+        album.setWishlisted(query.value("wishlisted").toBool());
+        album.setNotes(query.value("notes").toString());
+        return album;
+    }
+
+    return {};
+}
+
+std::vector<int> cddb::getAlbumArtistIDs(int albumID)
+{
+    std::vector<int> ret;
+    QSqlQuery q;
+    q.prepare("SELECT artist_id FROM album_artist_relation WHERE album_id = ?");
+    q.bindValue(0, albumID);
+    q.exec();
+    while (q.next())
+        ret.push_back(q.value("artist_id").toInt());
+    return ret;
+}
+
+std::vector<int> cddb::getAlbumFeaturedArtistIDs(int albumID)
+{
+    std::vector<int> ret;
+    QSqlQuery q;
+    q.prepare("SELECT artist_id FROM album_featured_artist_relation WHERE album_id = ?");
+    q.bindValue(0, albumID);
+    q.exec();
+    while (q.next())
+        ret.push_back(q.value("artist_id").toInt());
+    return ret;
+}
+
+std::vector<int> cddb::getAlbumGenreIDs(int albumID)
+{
+    std::vector<int> ret;
+    QSqlQuery q;
+    q.prepare("SELECT genre_id FROM album_genre_relation WHERE album_id = ?");
+    q.bindValue(0, albumID);
+    q.exec();
+    while (q.next())
+        ret.push_back(q.value("genre_id").toInt());
+    return ret;
+}
+
+std::optional<int> cddb::getAlbumRatingID(int albumID)
+{
+    QSqlQuery q;
+    q.prepare("SELECT rating_id FROM album_rating_relation WHERE album_id = ?");
+    q.bindValue(0, albumID);
+    q.exec();
+    if (q.next())
+        return q.value("rating_id").toInt();
+    return {};
+}
 
 std::optional<cddb::Artist> cddb::getArtist(int artistID)
 {
@@ -24,6 +277,18 @@ std::optional<cddb::Artist> cddb::getArtist(int artistID)
     }
 
     return {};
+}
+
+std::vector<int> cddb::getArtistIDs(QString artistName)
+{
+    std::vector<int> ret;
+    QSqlQuery q;
+    q.prepare("SELECT id FROM artist WHERE name = ?");
+    q.bindValue(0, artistName);
+    q.exec();
+    while (q.next())
+        ret.push_back(q.value("id").toInt());
+    return ret;
 }
 
 std::optional<cddb::Genre> cddb::getGenre(int genreID)
@@ -61,6 +326,42 @@ std::optional<cddb::Genre> cddb::getGenre(int genreID)
     return {};
 }
 
+std::optional<int> cddb::getGenreID(QString genreName)
+{
+    QSqlQuery q;
+    q.prepare("SELECT id FROM genre WHERE name = ?");
+    q.bindValue(0, genreName);
+    if (!q.exec())
+        throw std::runtime_error(q.lastError().text().toStdString());
+    if (q.next())
+        return q.value("id").toInt();
+    return {};
+}
+
+std::optional<int> cddb::getRatingID(QString letter)
+{
+    QSqlQuery q;
+    q.prepare("SELECT id FROM rating WHERE letter = ?");
+    q.bindValue(0, letter);
+    if (!q.exec())
+        throw std::runtime_error(q.lastError().text().toStdString());
+    if (q.next())
+        return q.value("id").toInt();
+    return {};
+}
+
+std::optional<int> cddb::getReleaseTypeID(QString type)
+{
+    QSqlQuery q;
+    q.prepare("SELECT id FROM release_type WHERE type = ?");
+    q.bindValue(0, type);
+    if (!q.exec())
+        throw std::runtime_error(q.lastError().text().toStdString());
+    if (q.next())
+        return q.value("id").toInt();
+    return {};
+}
+
 void cddb::init(QString filename)
 {
     // Check if a database is already open
@@ -79,75 +380,57 @@ void cddb::init(QString filename)
 void cddb::seedDatabase()
 {
     QSqlQuery q("");
-    q.exec("DROP TABLE IF EXISTS release_type");
-    q.exec("CREATE TABLE IF NOT EXISTS release_type ("
-           "id INTEGER PRIMARY KEY,"
-           "type VARCHAR UNIQUE"
-           ")");
-    q.exec("INSERT INTO release_type (type) VALUES"
-           "('Album'),"
-           "('Mini-album'),"
-           "('EP'),"
-           "('Single'),"
-           "('Compilation'),"
-           "('V/A Compilation')");
+    q.exec("INSERT INTO release_type (type, multiplier) VALUES"
+           "('Album', 6),"
+           "('Mini-album', 3),"
+           "('EP', 3),"
+           "('Single', 1),"
+           "('Live Album', 3),"
+           "('Compilation', 3),"
+           "('V/A Compilation', 0),"
+           "('Soundtrack', 6)");
 
-    q.exec("drop table if exists artist");
-    q.exec("create table if not exists artist ("
-           "id integer primary key,"
-           "name varchar,"
-           "sort_name varchar,"
-           "localized_name varchar,"
-           "country varchar,"
-           "notes varchar"
-           ")");
-    q.exec("insert into artist (name, country) values"
-           "('Primal Scream', 'United Kingdom'),"
-           "('Hooverphonic', 'Belgium'),"
-           "('sugar plant', 'Japan'),"
-           "('Supercar', 'Japan')");
+    q.exec("INSERT INTO rating (letter, grade) VALUES"
+           "('S+', 5.3),"
+           "('S',  5.0),"
+           "('S-', 4.7),"
+           "('A+', 4.3),"
+           "('A',  4.0),"
+           "('A-', 3.7),"
+           "('B+', 3.3),"
+           "('B',  3.0),"
+           "('B-', 2.7),"
+           "('C+', 2.3),"
+           "('C',  2.0),"
+           "('C-', 1.7),"
+           "('D+', 1.3),"
+           "('D',  1.0),"
+           "('D-', 0.7),"
+           "('F',  0.0)");
+    qDebug() << q.lastError();
 
-    q.exec("drop table if exists album");
-    q.exec("create table if not exists album ("
-           "id integer primary key,"
-           "title varchar not null,"
-           "release_year integer,"
-           "release_month integer,"
-           "release_day integer"
-           ")");
-    q.exec("insert into album (title, release_year) values"
-           "('More Light', 2013),"
-           "('A New Stereophonic Sound Spectacular', 1996)");
+    q.exec("INSERT INTO artist (name, sort_name, country) VALUES"
+           "('Primal Scream', 'Primal Scream', 'United Kingdom'),"
+           "('Hooverphonic', 'Hooverphonic', 'Belgium'),"
+           "('sugar plant', 'sugar plant', 'Japan'),"
+           "('Supercar', 'Supercar', 'Japan')");
 
-    q.exec("drop table if exists genre");
-    q.exec("create table if not exists genre ("
-           "id integer primary key,"
-           "name varchar not null unique,"
-           "notes varchar"
-           ")");
-    q.exec("insert into genre (name) values"
+    q.exec("INSERT INTO album (title, sort_title, release_year) VALUES"
+           "('More Light', 'More Light', 2013),"
+           "('A New Stereophonic Sound Spectacular', 'A New Stereophonic Sound Spectacular', 1996)");
+
+    q.exec("INSERT INTO genre (name) VALUES"
            "('Dream Pop & Shoegaze'),"
            "('New Wave'),"
            "('Post-punk'),"
            "('Psychedelia')");
 
-    q.exec("drop table if exists parent_genre_relation");
-    q.exec("create table if not exists parent_genre_relation ("
-           "parent integer,"
-           "child integer,"
-           "foreign key(parent) references genre(id),"
-           "foreign key(child) references genre(id)"
-           ")");
-    q.exec("insert into parent_genre_relation (parent, child) values"
+    q.exec("INERST INTO album_artist_relation (album_id, artist_id) VALUES"
+           "(1, 1),"
+           "(2, 2)");
+    q.exec("INSERT INTO parent_genre_relation (parent, child) VALUES"
            "(4, 1)");
 
-    q.exec("drop table if exists similar_genre_relation");
-    q.exec("create table if not exists similar_genre_relation ("
-           "genre1 integer,"
-           "genre2 integer,"
-           "foreign key(genre1) references genre(id),"
-           "foreign key(genre2) references genre(id)"
-           ")");
-    q.exec("insert into similar_genre_relation (genre1, genre2) values"
+    q.exec("INSERT INTO similar_genre_relation (genre1, genre2) VALUES"
            "(2, 3)");
 }

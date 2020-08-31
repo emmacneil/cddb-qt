@@ -1,10 +1,14 @@
 #include "albumdialog.h"
 
+#include <QDebug>
 #include <QFormLayout>
 #include <QGridLayout>
 #include <QGroupBox>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
+
+#include <QSqlError>
+#include <QSqlQuery>
 
 AlbumDialog::AlbumDialog(QWidget *parent) : QDialog(parent)
 {
@@ -31,7 +35,7 @@ AlbumDialog::AlbumDialog(QWidget *parent) : QDialog(parent)
     sortTitleLineEdit = new QLineEdit;
     localizedTitleLineEdit = new QLineEdit;
     releaseTypeComboBox = new QComboBox;
-    releaseDateComboBox = new QComboBox;
+    releaseDateComboBox = new PartialDateEdit;
     ratingComboBox = new QComboBox;
     backlogCheckBox = new QCheckBox;
     ownedCheckBox = new QCheckBox;
@@ -61,8 +65,8 @@ AlbumDialog::AlbumDialog(QWidget *parent) : QDialog(parent)
     artistGroupBoxLayout->addWidget(artistListWidget, 1, 0);
     artistGroupBoxLayout->addWidget(artistRemoveButton, 1, 1, Qt::AlignTop);
     artistGroupBox->setLayout(artistGroupBoxLayout);
-    //connect(artistAddButton, &QPushButton::clicked, this, &AlbumDialog::addArtist);
-    //connect(artistRemoveButton, &QPushButton::clicked, this, &AlbumDialog::removeArtist);
+    connect(artistAddButton, &QPushButton::clicked, this, &AlbumDialog::addArtist);
+    connect(artistRemoveButton, &QPushButton::clicked, this, &AlbumDialog::removeArtist);
 
     QGroupBox *featuredArtistGroupBox = new QGroupBox(tr("Featured Artist(s)"));
     QGridLayout *featuredArtistGroupBoxLayout = new QGridLayout;
@@ -76,8 +80,8 @@ AlbumDialog::AlbumDialog(QWidget *parent) : QDialog(parent)
     featuredArtistGroupBoxLayout->addWidget(featuredArtistListWidget, 1, 0);
     featuredArtistGroupBoxLayout->addWidget(featuredArtistRemoveButton, 1, 1, Qt::AlignTop);
     featuredArtistGroupBox->setLayout(featuredArtistGroupBoxLayout);
-    //connect(featuredArtistAddButton, &QPushButton::clicked, this, &AlbumDialog::addFeaturedArtist);
-    //connect(featuredArtistRemoveButton, &QPushButton::clicked, this, &AlbumDialog::removeFeaturedArtist);
+    connect(featuredArtistAddButton, &QPushButton::clicked, this, &AlbumDialog::addFeaturedArtist);
+    connect(featuredArtistRemoveButton, &QPushButton::clicked, this, &AlbumDialog::removeFeaturedArtist);
 
     QGroupBox *genreGroupBox = new QGroupBox(tr("Genre(s)"));
     QGridLayout *genreGroupBoxLayout = new QGridLayout;
@@ -91,8 +95,8 @@ AlbumDialog::AlbumDialog(QWidget *parent) : QDialog(parent)
     genreGroupBoxLayout->addWidget(genreListWidget, 1, 0);
     genreGroupBoxLayout->addWidget(genreRemoveButton, 1, 1, Qt::AlignTop);
     genreGroupBox->setLayout(genreGroupBoxLayout);
-    //connect(genreAddButton, &QPushButton::clicked, this, &AlbumDialog::addGenre);
-    //connect(genreRemoveButton, &QPushButton::clicked, this, &AlbumDialog::removeGenre);
+    connect(genreAddButton, &QPushButton::clicked, this, &AlbumDialog::addGenre);
+    connect(genreRemoveButton, &QPushButton::clicked, this, &AlbumDialog::removeGenre);
 
     listLayout->addWidget(artistGroupBox);
     listLayout->addWidget(featuredArtistGroupBox);
@@ -104,4 +108,69 @@ AlbumDialog::AlbumDialog(QWidget *parent) : QDialog(parent)
 
     notesTextEdit = new QTextEdit;
     notesLayout->addWidget(notesTextEdit);
+
+    // Populate combo boxes
+    QSqlQuery query;
+    query.exec("SELECT * FROM release_type");
+    while (query.next())
+        releaseTypeComboBox->addItem(query.value("type").toString());
+
+    query.exec("SELECT * FROM rating");
+    while (query.next())
+        ratingComboBox->addItem(query.value("letter").toString());
+
+    query.exec("SELECT * FROM artist");
+    while (query.next())
+    {
+        artistComboBox->addItem(query.value("name").toString());
+        featuredArtistComboBox->addItem(query.value("name").toString());
+    }
+
+    query.exec("SELECT * FROM genre");
+    while (query.next())
+        genreComboBox->addItem(query.value("name").toString());
+
 }
+
+void AlbumDialog::addArtist()
+{
+    // Get the artist currently showing in the QComboBox
+    QString artistName = artistComboBox->currentText();
+
+    // Check if the artist is already in the associated QListWidget. If not, add it.
+    QList<QListWidgetItem*> results = artistListWidget->findItems(artistName, Qt::MatchExactly);
+    if (results.isEmpty())
+        artistListWidget->addItem(artistName);
+}
+
+void AlbumDialog::addFeaturedArtist()
+{
+    QString artistName = featuredArtistComboBox->currentText();
+    QList<QListWidgetItem*> results = featuredArtistListWidget->findItems(artistName, Qt::MatchExactly);
+    if (results.isEmpty())
+        featuredArtistListWidget->addItem(artistName);
+}
+
+void AlbumDialog::addGenre()
+{
+    QString genreName = genreComboBox->currentText();
+    QList<QListWidgetItem*> results = genreListWidget->findItems(genreName, Qt::MatchExactly);
+    if (results.isEmpty())
+        genreListWidget->addItem(genreName);
+}
+
+void AlbumDialog::removeArtist()
+{
+    artistListWidget->takeItem(artistListWidget->currentRow());
+}
+
+void AlbumDialog::removeFeaturedArtist()
+{
+    featuredArtistListWidget->takeItem(featuredArtistListWidget->currentRow());
+}
+
+void AlbumDialog::removeGenre()
+{
+    genreListWidget->takeItem(genreListWidget->currentRow());
+}
+

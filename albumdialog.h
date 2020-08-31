@@ -23,6 +23,8 @@
  * Notes
  */
 
+#include "partialdateedit.h"
+
 #include <QCheckBox>
 #include <QComboBox>
 #include <QDialog>
@@ -46,7 +48,7 @@ protected:
     QComboBox *featuredArtistComboBox;
     QComboBox *genreComboBox;
     QComboBox *ratingComboBox;
-    QComboBox *releaseDateComboBox; // This is temporary... we actually need three combo boxes (year, month, and date)
+    PartialDateEdit *releaseDateComboBox; // This is temporary... we actually need three combo boxes (year, month, and date)
     QComboBox *releaseTypeComboBox;
     QDialogButtonBox *buttonBox;
     QLineEdit *localizedTitleLineEdit;
@@ -62,6 +64,14 @@ protected:
     QPushButton *genreAddButton;
     QPushButton *genreRemoveButton;
     QTextEdit *notesTextEdit;
+
+protected slots:
+    void addArtist();
+    void addFeaturedArtist();
+    void addGenre();
+    void removeArtist();
+    void removeFeaturedArtist();
+    void removeGenre();
 };
 
 #endif // ALBUMDIALOG_H
