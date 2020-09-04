@@ -14,6 +14,8 @@ class AlbumView : public QSplitter
 public:
     AlbumView();
 
+    std::optional<int> getSelectedAlbumID();
+
 private:
     QGroupBox *searchGroupBox;
     QGroupBox *resultsGroupBox;

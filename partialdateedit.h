@@ -20,6 +20,8 @@ class PartialDateEdit : public QFrame
 public:
     PartialDateEdit();
     cddb::PartialDate getPartialDate();
+    void setPartialDate(const uint16_t year, const uint8_t month, const uint8_t day);
+    void setPartialDate(const cddb::PartialDate &date);
 
 private:
     QSpinBox yearComboBox;

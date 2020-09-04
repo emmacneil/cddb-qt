@@ -23,6 +23,7 @@
  * Notes
  */
 
+#include "cddb.h"
 #include "partialdateedit.h"
 
 #include <QCheckBox>
@@ -69,6 +70,7 @@ protected slots:
     void addArtist();
     void addFeaturedArtist();
     void addGenre();
+    void fillAlbumDetails(cddb::Album &album);
     void removeArtist();
     void removeFeaturedArtist();
     void removeGenre();

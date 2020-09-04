@@ -36,3 +36,15 @@ cddb::PartialDate PartialDateEdit::getPartialDate()
     // This can throw an error if the date is invalid (e.g. Feb 30th)
     return cddb::PartialDate(yearComboBox.value(), monthComboBox.value(), dayComboBox.value());
 }
+
+void PartialDateEdit::setPartialDate(const uint16_t year, const uint8_t month, const uint8_t day)
+{
+    setPartialDate(cddb::PartialDate(year, month, day));
+}
+
+void PartialDateEdit::setPartialDate(const cddb::PartialDate &date)
+{
+    yearComboBox.setValue(date.getYear());
+    monthComboBox.setValue(date.getMonth());
+    dayComboBox.setValue(date.getDay());
+}

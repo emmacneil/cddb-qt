@@ -21,9 +21,12 @@ std::optional<Artist> getArtist(int artistID);
 std::vector<int> getArtistIDs(QString artistName);
 std::optional<Genre> getGenre(int genreID);
 std::optional<int> getGenreID(QString genreName);
+std::optional<QString> getRating(int id);
+std::optional<int> getRatingID(QString type);
+std::optional<QString> getReleaseType(int id);
 std::optional<int> getReleaseTypeID(QString type);
-std::optional<int> getRatingID(QString letter);
 void init(QString filename);
 void seedDatabase();
+void updateAlbum(Album &album);
 } // namespace cddb
 #endif // CDDB_H

@@ -10,6 +10,25 @@ Album::Album(const int id)
     releaseDate = nullptr;
 }
 
+Album::Album(const Album &other)
+    : id(other.id)
+{
+    releaseType = other.releaseType;
+    rating = other.rating;
+    backlog = other.backlog;
+    owned = other.owned;
+    seeking = other.seeking;
+    wishlist = other.wishlist;
+    releaseDate = new PartialDate(*(other.releaseDate));
+    title = other.title;
+    sortTitle = other.sortTitle;
+    localizedTitle = other.localizedTitle;
+    notes = other.notes;
+    artists = other.artists;
+    featuredArtists = other.featuredArtists;
+    genres = other.genres;
+}
+
 Album::~Album()
 {
     if (releaseDate)
@@ -179,8 +198,6 @@ void Album::setRating(int value)
 
 void Album::setReleaseDate(const PartialDate &value)
 {
-    QString tmp(value.toString().c_str());
-    qDebug() << "Setting release date" << tmp;
     if (releaseDate)
         delete releaseDate;
     releaseDate = new PartialDate(value);

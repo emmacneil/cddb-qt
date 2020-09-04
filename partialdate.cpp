@@ -2,18 +2,21 @@
 
 #include <stdexcept>
 
+#include <QDebug>
+
 namespace cddb
 {
-PartialDate::PartialDate(int16_t y, uint8_t m, uint8_t d) : year(y), month(m), day(d)
+PartialDate::PartialDate(int16_t y, uint8_t m, uint8_t d)
+    : year(y), month(m), day(d)
 {
     // Make sure the date is valid
     if (!isValid())
         throw std::invalid_argument("Invalid date");
 }
 
-PartialDate::PartialDate(const PartialDate &other) : year(other.year), month(other.month), day(other.day)
+PartialDate::PartialDate(const PartialDate &other)
+    : PartialDate(other.year, other.month, other.day)
 {
-    // ...
 }
 
 bool PartialDate::isLeapYear() const
@@ -60,17 +63,17 @@ std::string PartialDate::toString() const
     return ret;
 }
 
-uint16_t PartialDate::getDay()
+uint8_t PartialDate::getDay() const
 {
     return day;
 }
 
-uint8_t PartialDate::getMonth()
+uint8_t PartialDate::getMonth() const
 {
     return month;
 }
 
-uint8_t PartialDate::getYear()
+uint16_t PartialDate::getYear() const
 {
     return year;
 }

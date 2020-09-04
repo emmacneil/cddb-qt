@@ -111,8 +111,16 @@ void MainWindow::createMenus()
 
 void MainWindow::editAlbum()
 {
-    EditAlbumDialog dialog(0, this);
-    dialog.exec();
+    std::optional<int> albumID = albumView->getSelectedAlbumID();
+    if (albumID.has_value())
+    {
+        EditAlbumDialog dialog(*albumID, this);
+        dialog.exec();
+    }
+    else
+    {
+        qWarning() << "Attempted to edit artist when no artist was selected.";
+    }
 }
 
 void MainWindow::editArtist()

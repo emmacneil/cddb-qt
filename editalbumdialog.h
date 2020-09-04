@@ -10,6 +10,9 @@ public:
 
 private:
     int albumID;
+
+private slots:
+    void editAlbumInDatabase();
 };
 
 #endif // EDITALBUMDIALOG_H

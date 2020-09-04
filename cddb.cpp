@@ -1,4 +1,5 @@
 #include "cddb.h"
+#include "partialdate.h"
 
 #include <QDebug>
 
@@ -17,27 +18,33 @@ void cddb::addAlbum(cddb::Album &album)
 
     // Insert album into database
     query.prepare("INSERT INTO album (title, sort_title, localized_title, release_year, "
-                  "release_month, release_day, backlogged, owned, seeking, wishlisted, notes) VALUES "
-                  "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                  "release_month, release_day, release_type, rating, backlogged, owned, seeking, wishlisted, notes) VALUES "
+                  "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
     query.bindValue(0, album.getTitle());
     query.bindValue(1, album.getSortTitle());
     query.bindValue(2, album.getLocalizedTitle());
     query.bindValue(3, album.getReleaseDate().getYear());
     query.bindValue(4, album.getReleaseDate().getMonth());
     query.bindValue(5, album.getReleaseDate().getDay());
-    query.bindValue(6, album.isBacklogged());
-    query.bindValue(7, album.isOwned());
-    query.bindValue(8, album.isSeeking());
-    query.bindValue(9, album.isWishlisted());
-    query.bindValue(10, album.getNotes());
+    query.bindValue(6, album.getReleaseType());
+    query.bindValue(7, album.getRating());
+    query.bindValue(8, album.isBacklogged());
+    query.bindValue(9, album.isOwned());
+    query.bindValue(10, album.isSeeking());
+    query.bindValue(11, album.isWishlisted());
+    query.bindValue(12, album.getNotes());
     if (!query.exec())
         throw std::runtime_error(query.lastError().text().toStdString());
+
+    query.exec("SELECT last_insert_rowid();");
+    query.next();
+    int albumID = query.value(0).toInt();
 
     // Insert album rating into database
     if (album.getRating() != 0)
     {
         query.prepare("INSERT INTO album_rating_relation (album_id, rating_id) VALUES (?, ?)");
-        query.bindValue(0, album.getId());
+        query.bindValue(0, albumID);
         query.bindValue(1, album.getRating());
         if (!query.exec())
             throw std::runtime_error(query.lastError().text().toStdString());
@@ -47,7 +54,7 @@ void cddb::addAlbum(cddb::Album &album)
     for (int artistID : album.getArtists())
     {
         query.prepare("INSERT INTO album_artist_relation(album_id, artist_id) VALUES (?, ?)");
-        query.bindValue(0, album.getId());
+        query.bindValue(0, albumID);
         query.bindValue(1, artistID);
         if (!query.exec())
             throw std::runtime_error(query.lastError().text().toStdString());
@@ -57,7 +64,7 @@ void cddb::addAlbum(cddb::Album &album)
     for (int artistID : album.getFeaturedArtists())
     {
         query.prepare("INSERT INTO album_featured_artist_relation(album_id, artist_id) VALUES (?, ?)");
-        query.bindValue(0, album.getId());
+        query.bindValue(0, albumID);
         query.bindValue(1, artistID);
         if (!query.exec())
             throw std::runtime_error(query.lastError().text().toStdString());
@@ -67,7 +74,7 @@ void cddb::addAlbum(cddb::Album &album)
     for (int genreID : album.getGenres())
     {
         query.prepare("INSERT INTO album_genre_relation(album_id, genre_id) VALUES (?, ?)");
-        query.bindValue(0, album.getId());
+        query.bindValue(0, albumID);
         query.bindValue(1, genreID);
         if (!query.exec())
             throw std::runtime_error(query.lastError().text().toStdString());
@@ -105,11 +112,15 @@ void cddb::createTables()
            "release_year    INTEGER,"
            "release_month   INTEGER,"
            "release_day     INTEGER,"
-           "backlogged      BOOLEAN,"
-           "owned           BOOLEAN,"
-           "seeking         BOOLEAN,"
-           "wishlisted      BOOLEAN,"
-           "notes           VARCHAR"
+           "release_type    INTEGER NOT NULL,"
+           "rating          INTEGER,"
+           "backlogged      BOOLEAN DEFAULT 0,"
+           "owned           BOOLEAN DEFAULT 0,"
+           "seeking         BOOLEAN DEFAULT 0,"
+           "wishlisted      BOOLEAN DEFAULT 0,"
+           "notes           VARCHAR,"
+           "FOREIGN KEY(release_type) REFERENCES release_type(id),"
+           "FOREIGN KEY(rating)       REFERENCES rating(id)"
            ")");
     q.exec("CREATE TABLE IF NOT EXISTS genre ("
            "id    INTEGER PRIMARY KEY,"
@@ -181,7 +192,7 @@ std::optional<cddb::Album> cddb::getAlbum(int albumID)
     {
         cddb::Album album(query.value("id").toInt());
         album.setTitle(query.value("title").toString());
-        album.setSortTitle(query.value("srt_title").toString());
+        album.setSortTitle(query.value("sort_title").toString());
         if (!query.value("localized_title").toString().isEmpty())
             album.setLocalizedTitle(query.value("localized_title").toString());
 
@@ -189,8 +200,11 @@ std::optional<cddb::Album> cddb::getAlbum(int albumID)
                                  query.value("release_year").toInt(),
                                  query.value("release_month").toInt(),
                                  query.value("release_day").toInt()));
+
         std::optional<int> opt = getAlbumRatingID(albumID);
         album.setRating(opt.has_value() ? opt.value() : 0);
+        album.setReleaseType(query.value("release_type").toInt());
+        album.setRating(query.value("rating").toInt());
 
         std::vector<int> vec;
         vec = cddb::getAlbumArtistIDs(albumID);
@@ -338,6 +352,18 @@ std::optional<int> cddb::getGenreID(QString genreName)
     return {};
 }
 
+std::optional<QString> cddb::getRating(int id)
+{
+    QSqlQuery q;
+    q.prepare("SELECT letter FROM rating WHERE id = ?");
+    q.bindValue(0, id);
+    if (!q.exec())
+        throw std::runtime_error(q.lastError().text().toStdString());
+    if (q.next())
+        return q.value("letter").toString();
+    return {};
+}
+
 std::optional<int> cddb::getRatingID(QString letter)
 {
     QSqlQuery q;
@@ -347,6 +373,18 @@ std::optional<int> cddb::getRatingID(QString letter)
         throw std::runtime_error(q.lastError().text().toStdString());
     if (q.next())
         return q.value("id").toInt();
+    return {};
+}
+
+std::optional<QString> cddb::getReleaseType(int id)
+{
+    QSqlQuery q;
+    q.prepare("SELECT type FROM release_type WHERE id = ?");
+    q.bindValue(0, id);
+    if (!q.exec())
+        throw std::runtime_error(q.lastError().text().toStdString());
+    if (q.next())
+        return q.value("type").toString();
     return {};
 }
 
@@ -415,9 +453,9 @@ void cddb::seedDatabase()
            "('sugar plant', 'sugar plant', 'Japan'),"
            "('Supercar', 'Supercar', 'Japan')");
 
-    q.exec("INSERT INTO album (title, sort_title, release_year) VALUES"
-           "('More Light', 'More Light', 2013),"
-           "('A New Stereophonic Sound Spectacular', 'A New Stereophonic Sound Spectacular', 1996)");
+    q.exec("INSERT INTO album (title, sort_title, release_year, release_month, release_day, release_type) VALUES"
+           "('More Light', 'More Light', 2013, 5, 13, 1),"
+           "('A New Stereophonic Sound Spectacular', 'A New Stereophonic Sound Spectacular', 1996, 7, 29, 1)");
 
     q.exec("INSERT INTO genre (name) VALUES"
            "('Dream Pop & Shoegaze'),"
@@ -425,7 +463,7 @@ void cddb::seedDatabase()
            "('Post-punk'),"
            "('Psychedelia')");
 
-    q.exec("INERST INTO album_artist_relation (album_id, artist_id) VALUES"
+    q.exec("INSERT INTO album_artist_relation (album_id, artist_id) VALUES"
            "(1, 1),"
            "(2, 2)");
     q.exec("INSERT INTO parent_genre_relation (parent, child) VALUES"
@@ -433,4 +471,91 @@ void cddb::seedDatabase()
 
     q.exec("INSERT INTO similar_genre_relation (genre1, genre2) VALUES"
            "(2, 3)");
+}
+
+void cddb::updateAlbum(cddb::Album &album)
+{
+    QSqlQuery query;
+
+    // Make sure album ID is non-zero.
+    // A non-zero ID may be an attempt to re-add an existing album to the database.
+    if (album.getId() == 0)
+        throw std::invalid_argument("Album must have non-zero ID to update database");
+
+    // Insert album into database
+    query.prepare("UPDATE album SET "
+                  "title = ?, sort_title = ?, localized_title = ?, "
+                  "release_year = ?, release_month = ?, release_day = ?, "
+                  "backlogged = ?, owned = ?, seeking = ?, wishlisted = ?, "
+                  "notes = ? WHERE id = ?");
+    query.bindValue(0, album.getTitle());
+    query.bindValue(1, album.getSortTitle());
+    query.bindValue(2, album.getLocalizedTitle());
+    query.bindValue(3, album.getReleaseDate().getYear());
+    query.bindValue(4, album.getReleaseDate().getMonth());
+    query.bindValue(5, album.getReleaseDate().getDay());
+    query.bindValue(6, album.isBacklogged());
+    query.bindValue(7, album.isOwned());
+    query.bindValue(8, album.isSeeking());
+    query.bindValue(9, album.isWishlisted());
+    query.bindValue(10, album.getNotes());
+    query.bindValue(11, album.getId());
+    if (!query.exec())
+        throw std::runtime_error(query.lastError().text().toStdString());
+
+    // Insert album rating into database
+    query.prepare("DELETE FROM album_rating_relation WHERE album_id = ?");
+    query.bindValue(0, album.getId());
+    if (!query.exec())
+        throw std::runtime_error(query.lastError().text().toStdString());
+    if (album.getRating() != 0)
+    {
+        query.prepare("INSERT INTO album_rating_relation (album_id, rating_id) VALUES (?, ?)");
+        query.bindValue(0, album.getId());
+        query.bindValue(1, album.getRating());
+        if (!query.exec())
+            throw std::runtime_error(query.lastError().text().toStdString());
+    }
+
+    // Insert album artists into database
+    query.prepare("DELETE FROM album_artist_relation WHERE album_id = ?");
+    query.bindValue(0, album.getId());
+    if (!query.exec())
+        throw std::runtime_error(query.lastError().text().toStdString());
+    for (int artistID : album.getArtists())
+    {
+        query.prepare("INSERT INTO album_artist_relation (album_id, artist_id) VALUES (?, ?)");
+        query.bindValue(0, album.getId());
+        query.bindValue(1, artistID);
+        if (!query.exec())
+            throw std::runtime_error(query.lastError().text().toStdString());
+    }
+
+    // Insert album featured artists into database
+    query.prepare("DELETE FROM album_featured_artist_relation WHERE album_id = ?");
+    query.bindValue(0, album.getId());
+    if (!query.exec())
+        throw std::runtime_error(query.lastError().text().toStdString());
+    for (int artistID : album.getFeaturedArtists())
+    {
+        query.prepare("INSERT INTO album_featured_artist_relation (album_id, artist_id) VALUES (?, ?)");
+        query.bindValue(0, album.getId());
+        query.bindValue(1, artistID);
+        if (!query.exec())
+            throw std::runtime_error(query.lastError().text().toStdString());
+    }
+
+    // Insert album genres into database
+    query.prepare("DELETE FROM album_genre_relation WHERE album_id = ?");
+    query.bindValue(0, album.getId());
+    if (!query.exec())
+        throw std::runtime_error(query.lastError().text().toStdString());
+    for (int genreID : album.getGenres())
+    {
+        query.prepare("INSERT INTO album_genre_relation (album_id, genre_id) VALUES (?, ?)");
+        query.bindValue(0, album.getId());
+        query.bindValue(1, genreID);
+        if (!query.exec())
+            throw std::runtime_error(query.lastError().text().toStdString());
+    }
 }

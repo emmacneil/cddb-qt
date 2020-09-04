@@ -22,9 +22,9 @@ public:
     PartialDate(const PartialDate &other);
 
     std::string toString() const;
-    uint16_t getDay();
-    uint8_t getMonth();
-    uint8_t getYear();
+    uint8_t getDay() const;
+    uint8_t getMonth() const;
+    uint16_t getYear() const;
 
     friend bool operator< (const PartialDate &lhs, const PartialDate &rhs);
     friend bool operator> (const PartialDate &lhs, const PartialDate &rhs);

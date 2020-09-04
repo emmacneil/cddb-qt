@@ -1,5 +1,6 @@
 #include "albumview.h"
 
+#include <QDebug>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QList>
@@ -30,6 +31,18 @@ AlbumView::AlbumView() : QSplitter()
     connect(tableView, &QTableView::clicked, this, &AlbumView::updateMarkdownView);
 }
 
+std::optional<int> AlbumView::getSelectedAlbumID()
+{
+    QItemSelectionModel *selectionModel = tableView->selectionModel();
+    QList<QModelIndex> selectedRows = selectionModel->selectedRows();
+    if (selectedRows.size() == 1)
+    {
+        QModelIndex i = selectedRows[0];
+        return tableView->model()->data(i).toInt();
+    }
+    return {};
+}
+
 void AlbumView::initDetailsGroupBox()
 {
     detailsGroupBox = new QGroupBox(tr("Details"));
@@ -53,7 +66,10 @@ void AlbumView::initResultsGroupBox()
     // Create a QTableView widget to show the search results in a table
     tableView = new QTableView;
     tableView->setModel(queryModel);
+    tableView->hideColumn(0);
     tableView->resizeColumnsToContents();
+    tableView->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
     tableView->show();
     tableLayout->addWidget(tableView);
 
@@ -71,9 +87,10 @@ void AlbumView::initSearchGroupBox()
 
 void AlbumView::updateAlbumList()
 {
-    queryModel->setQuery("SELECT title, release_year FROM album");
-    queryModel->setHeaderData(0, Qt::Horizontal, tr("Title"));
-    queryModel->setHeaderData(1, Qt::Horizontal, tr("Year"));
+    queryModel->setQuery("SELECT id, title, release_year FROM album");
+    queryModel->setHeaderData(0, Qt::Horizontal, tr("ID"));
+    queryModel->setHeaderData(1, Qt::Horizontal, tr("Title"));
+    queryModel->setHeaderData(2, Qt::Horizontal, tr("Year"));
 }
 
 void AlbumView::updateMarkdownView()
@@ -84,6 +101,7 @@ void AlbumView::updateMarkdownView()
     {
         QModelIndex i = selectedRows[0];
         int albumID = tableView->model()->data(i).toInt(); // TODO : Why does this select the ID and not the name column?
+
         // Find notes for the selected album
         QSqlQuery query;
         query.prepare("SELECT notes FROM album WHERE id = ?");

@@ -14,6 +14,7 @@ class Album
 {
 public:
     Album(const int id = 0);
+    Album(const Album &other);
     ~Album();
 
     void addArtist(int artistID);
