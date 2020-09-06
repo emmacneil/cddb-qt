@@ -36,31 +36,22 @@ EditArtistDialog::EditArtistDialog(int artistID, QWidget *parent) : ArtistDialog
         notesTextEdit->setEnabled(false);
         buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
     }
-
 }
 
 void EditArtistDialog::editArtistInDatabase()
 {
-    QSqlQuery query;
-    query.prepare("UPDATE artist SET "
-                  "name = ?, "
-                  "sort_name = ?, "
-                  "localized_name = ?, "
-                  "country = ?, "
-                  "notes = ? "
-                  "WHERE id = ?");
-    query.bindValue(0, nameLineEdit->text());
-    query.bindValue(1, sortNameLineEdit->text());
-    query.bindValue(2, localizedNameLineEdit->text());
-    query.bindValue(3, countryLineEdit->text());
-    query.bindValue(4, notesTextEdit->toPlainText());
-    query.bindValue(5, artistID);
-    if (!query.exec())
+    // Make sure a name was provided
+    if (nameLineEdit->text() == "")
     {
-        qWarning() << "Failed to update artist information.";
-        qWarning() << query.lastError();
-        reject();
+        qWarning() << "Attempted to edit unnamed artist in database";
+        reject(); // TODO: This should make a warning dialog appear instead!
     }
+
+    cddb::Artist artist(artistID);
+
+    fillArtistDetails(artist);
+
+    cddb::updateArtist(artist);
 
     accept();
 }

@@ -1,6 +1,8 @@
 #ifndef ARTISTDIALOG_H
 #define ARTISTDIALOG_H
 
+#include "cddb.h"
+
 #include <QDialog>
 
 #include <QDialogButtonBox>
@@ -19,6 +21,7 @@ protected:
     QLineEdit *localizedNameLineEdit;
     QLineEdit *countryLineEdit;
     QTextEdit *notesTextEdit;
+    void fillArtistDetails(cddb::Artist &artist);
 };
 
 #endif // ARTISTDIALOG_H

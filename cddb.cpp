@@ -81,6 +81,26 @@ void cddb::addAlbum(cddb::Album &album)
     }
 }
 
+void cddb::addArtist(cddb::Artist &artist)
+{
+    // Make sure artist ID is zero.
+    // A non-zero ID may be an attempt to re-add an existing artist to the database.
+    if (artist.getID() != 0)
+        throw std::invalid_argument("Artist must have ID = 0 to add to database");
+
+    // Insert album into database
+    QSqlQuery query;
+    query.prepare("INSERT INTO artist(name, sort_name, localized_name, country, notes, score) VALUES (?, ?, ?, ?, ?, ?)");
+    query.bindValue(0, artist.getName());
+    query.bindValue(1, artist.getSortName());
+    query.bindValue(2, artist.getLocalizedName());
+    query.bindValue(3, artist.getCountry());
+    query.bindValue(4, artist.getNotes());
+    query.bindValue(5, artist.getScore());
+    if (!query.exec())
+        throw std::runtime_error(query.lastError().text().toStdString());
+}
+
 void cddb::createTables()
 {
     QSqlQuery q;
@@ -280,8 +300,7 @@ std::optional<cddb::Artist> cddb::getArtist(int artistID)
     query.exec();
     if (query.next())
     {
-        cddb::Artist artist;
-        artist.setID(query.value("id").toInt());
+        cddb::Artist artist(query.value("id").toInt());
         artist.setName(query.value("name").toString());
         artist.setSortName(query.value("sort_name").toString());
         artist.setLocalizedName(query.value("localized_name").toString());
@@ -289,8 +308,24 @@ std::optional<cddb::Artist> cddb::getArtist(int artistID)
         artist.setNotes(query.value("notes").toString());
         return artist;
     }
-
     return {};
+}
+
+cddb::Artist cddb::getArtistNoOpt(int artistID)
+{
+    QSqlQuery query;
+    query.prepare("SELECT * FROM artist WHERE id = ?");
+    query.bindValue(0, artistID);
+    query.exec();
+    query.next();
+    cddb::Artist artist(query.value("id").toInt());
+    artist.setName(query.value("name").toString());
+    artist.setSortName(query.value("sort_name").toString());
+    artist.setLocalizedName(query.value("localized_name").toString());
+    artist.setCountry(query.value("country").toString());
+    artist.setNotes(query.value("notes").toString());
+    qDebug() << "Returning artist with id " << artist.getID();
+    return artist;
 }
 
 std::vector<int> cddb::getArtistIDs(QString artistName)
@@ -558,4 +593,25 @@ void cddb::updateAlbum(cddb::Album &album)
         if (!query.exec())
             throw std::runtime_error(query.lastError().text().toStdString());
     }
+}
+
+void cddb::updateArtist(cddb::Artist &artist)
+{
+    // Make sure album ID is non-zero.
+    // A non-zero ID may be an attempt to re-add an existing album to the database.
+    if (artist.getID() == 0)
+        throw std::invalid_argument("Artist must have non-zero ID to update database");
+
+    // Insert album into database
+    QSqlQuery query;
+    query.prepare("UPDATE artist SET name = ?, sort_name = ?, localized_name = ?, country = ?, notes = ?, score = ? WHERE id = ?");
+    query.bindValue(0, artist.getName());
+    query.bindValue(1, artist.getSortName());
+    query.bindValue(2, artist.getLocalizedName());
+    query.bindValue(3, artist.getCountry());
+    query.bindValue(4, artist.getNotes());
+    query.bindValue(5, artist.getScore());
+    query.bindValue(6, artist.getID());
+    if (!query.exec())
+        throw std::runtime_error(query.lastError().text().toStdString());
 }

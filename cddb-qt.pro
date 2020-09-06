@@ -32,6 +32,7 @@ SOURCES += \
     album.cpp \
     albumdialog.cpp \
     artist.cpp \
+    artist_search_box.cpp \
     artistdialog.cpp \
     cddb.cpp \
     editalbumdialog.cpp \
@@ -55,6 +56,7 @@ HEADERS += \
     album.h \
     albumdialog.h \
     artist.h \
+    artist_search_box.h \
     artistdialog.h \
     cddb.h \
     editalbumdialog.h \

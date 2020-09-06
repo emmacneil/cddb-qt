@@ -85,10 +85,11 @@ void ArtistView::initSearchGroupBox()
 
 void ArtistView::updateArtistList()
 {
-    queryModel->setQuery("SELECT id, name, country FROM artist");
+    queryModel->setQuery("SELECT id, name, country, score FROM artist");
     queryModel->setHeaderData(0, Qt::Horizontal, tr("ID"));
     queryModel->setHeaderData(1, Qt::Horizontal, tr("Artist"));
     queryModel->setHeaderData(2, Qt::Horizontal, tr("Country"));
+    queryModel->setHeaderData(3, Qt::Horizontal, tr("Score"));
 }
 
 void ArtistView::updateMarkdownView()

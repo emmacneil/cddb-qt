@@ -1,5 +1,7 @@
 #include "artistdialog.h"
 
+#include <QDebug>
+
 #include <QFormLayout>
 #include <QGroupBox>
 #include <QHBoxLayout>
@@ -38,4 +40,16 @@ ArtistDialog::ArtistDialog(QWidget *parent) : QDialog(parent)
     notesGroupBoxLayout->addWidget(notesTextEdit);
     notesGroupBox->setLayout(notesGroupBoxLayout);
     rightLayout->addWidget(notesGroupBox);
+}
+
+void ArtistDialog::fillArtistDetails(cddb::Artist &artist)
+{
+    artist.setName(nameLineEdit->text());
+    if (sortNameLineEdit->text() == "")
+        artist.setSortName(nameLineEdit->text());
+    else
+        artist.setSortName(sortNameLineEdit->text());
+    artist.setLocalizedName(localizedNameLineEdit->text());
+    artist.setCountry(countryLineEdit->text());
+    artist.setNotes(notesTextEdit->toPlainText());
 }
