@@ -168,7 +168,7 @@ void AlbumDialog::fillAlbumDetails(cddb::Album &album)
 
     std::optional<int> releaseTypeID = cddb::getReleaseTypeID(releaseTypeComboBox->currentText());
     if (releaseTypeID.has_value())
-        album.setRating(releaseTypeID.value());
+        album.setReleaseTypeID(releaseTypeID.value());
 
     album.setReleaseDate(releaseDateComboBox->getPartialDate());
 
@@ -176,7 +176,13 @@ void AlbumDialog::fillAlbumDetails(cddb::Album &album)
     if (ratingComboBox->currentText() != tr("None"));
         ratingID = cddb::getRatingID(ratingComboBox->currentText());
     if (ratingID.has_value())
-        album.setRating(ratingID.value());
+        album.setRatingID(ratingID.value());
+
+    if (ratingID.has_value())
+        qDebug() << "RatingID set to" << *ratingID;
+    else
+        qDebug() << "RatingID set to None.";
+    qDebug() << "album.getRating() =" << album.getRatingID();
 
     album.setBacklogged(backlogCheckBox->isChecked());
     album.setOwned(ownedCheckBox->isChecked());
@@ -234,4 +240,3 @@ void AlbumDialog::removeGenre()
 {
     genreListWidget->takeItem(genreListWidget->currentRow());
 }
-

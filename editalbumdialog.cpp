@@ -19,18 +19,18 @@ EditAlbumDialog::EditAlbumDialog(int albumID, QWidget *parent) : AlbumDialog(par
 
         releaseDateComboBox->setPartialDate(album->getReleaseDate());
 
-        std::optional<QString> strReleaseType = cddb::getReleaseType(album->getReleaseType());
-        if (strReleaseType.has_value())
-            releaseTypeComboBox->setCurrentText(*strReleaseType);
+        std::optional<cddb::ReleaseType> releaseType = cddb::getReleaseType(album->getReleaseTypeID());
+        if (releaseType.has_value())
+            releaseTypeComboBox->setCurrentText(releaseType->getName());
 
         releaseDateComboBox->setPartialDate(album->getReleaseDate());
 
         // Rating
-        std::optional<QString> strRating = cddb::getRating(album->getRating());
-        if (strRating.has_value())
-            releaseTypeComboBox->setCurrentText(*strRating);
+        std::optional<cddb::Rating> rating = cddb::getRating(album->getRatingID());
+        if (rating.has_value())
+            ratingComboBox->setCurrentText(rating->getLetter());
         else
-            releaseTypeComboBox->setCurrentText(tr("None"));
+            ratingComboBox->setCurrentText(tr("None"));
 
         backlogCheckBox->setChecked(album->isBacklogged());
         ownedCheckBox->setChecked(album->isOwned());
@@ -38,7 +38,7 @@ EditAlbumDialog::EditAlbumDialog(int albumID, QWidget *parent) : AlbumDialog(par
         wishlistCheckBox->setChecked(album->isWishlisted());
 
         // Artists
-        for (int artistID : album->getArtists())
+        for (int artistID : album->getArtistIDs())
         {
             std::optional<cddb::Artist> artist = cddb::getArtist(artistID);
             if (!artist.has_value())
@@ -47,7 +47,7 @@ EditAlbumDialog::EditAlbumDialog(int albumID, QWidget *parent) : AlbumDialog(par
         }
 
         // Featured Artists
-        for (int artistID : album->getFeaturedArtists())
+        for (int artistID : album->getFeaturedArtistIDs())
         {
             std::optional<cddb::Artist> artist = cddb::getArtist(artistID);
             if (!artist.has_value())
@@ -56,7 +56,7 @@ EditAlbumDialog::EditAlbumDialog(int albumID, QWidget *parent) : AlbumDialog(par
         }
 
         // Genre
-        for (int genreID : album->getGenres())
+        for (int genreID : album->getGenreIDs())
         {
             std::optional<cddb::Genre> genre= cddb::getGenre(genreID);
             if (!genre.has_value())

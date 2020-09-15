@@ -4,6 +4,8 @@
 #include "album.h"
 #include "artist.h"
 #include "genre.h"
+#include "rating.h"
+#include "release_type.h"
 
 #include <QString>
 
@@ -23,11 +25,13 @@ std::optional<Artist> getArtist(int artistID);
 std::vector<int> getArtistIDs(QString artistName);
 std::optional<Genre> getGenre(int genreID);
 std::optional<int> getGenreID(QString genreName);
-std::optional<QString> getRating(int id);
+std::optional<Rating> getRating(int id);
 std::optional<int> getRatingID(QString type);
-std::optional<QString> getReleaseType(int id);
+std::optional<ReleaseType> getReleaseType(int id);
 std::optional<int> getReleaseTypeID(QString type);
 void init(QString filename);
+void newDatabase(QString filename);
+void openDatabase(QString filename);
 void seedDatabase();
 void updateAlbum(Album &album);
 void updateArtist(Artist &artist);

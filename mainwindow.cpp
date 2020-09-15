@@ -8,6 +8,7 @@
 
 #include <QtSql/QtSql>
 #include <QSplitter>
+#include <QFileDialog>
 #include <QGroupBox>
 #include <QHBoxLayout>
 
@@ -55,6 +56,16 @@ void MainWindow::addGenre()
 void MainWindow::createActions()
 {
     // TODO: Do I need to delete this pointer later myself?
+    newAct = new QAction(tr("&New"));
+    newAct->setShortcuts(QKeySequence::New);
+    newAct->setStatusTip(tr("Create a new database"));
+    connect(newAct, &QAction::triggered, this, &MainWindow::newDatabase);
+
+    openAct = new QAction(tr("&Open"));
+    openAct->setShortcuts(QKeySequence::Open);
+    openAct->setStatusTip(tr("Open an existing database"));
+    connect(openAct, &QAction::triggered, this, &MainWindow::openDatabase);
+
     quitAct = new QAction(tr("&Quit"));
     quitAct->setShortcuts(QKeySequence::Quit);
     quitAct->setStatusTip(tr("Quit CDDB-qt"));
@@ -93,6 +104,8 @@ void MainWindow::createMenus()
     // Create the File, Edit, Help, etc. menus
     // TODO: Do I need to delete this pointer (fileMenu, editMenu, etc.) later myself?
     fileMenu = menuBar()->addMenu(tr("&File"));
+    fileMenu->addAction(newAct);
+    fileMenu->addAction(openAct);
     fileMenu->addAction(quitAct);
 
     editMenu = menuBar()->addMenu(tr("&Edit"));
@@ -149,6 +162,18 @@ void MainWindow::editGenre()
     {
         qWarning() << "Attempted to edit genre when no genre was selected.";
     }
+}
+
+void MainWindow::newDatabase()
+{
+    QString filename = QFileDialog::getSaveFileName(this, tr("Create"));
+    cddb::newDatabase(filename);
+}
+
+void MainWindow::openDatabase()
+{
+    QString filename = QFileDialog::getOpenFileName(this, tr("Open"));
+    cddb::openDatabase(filename);
 }
 
 void MainWindow::quit()

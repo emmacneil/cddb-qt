@@ -17,6 +17,7 @@ void AddAlbumDialog::addAlbumToDatabase()
 
     fillAlbumDetails(album);
 
+    qDebug() << "in addAlbumToDatabase: release type ID" << album.getReleaseTypeID();
     cddb::addAlbum(album);
 
     accept();

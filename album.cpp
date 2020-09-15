@@ -13,8 +13,8 @@ Album::Album(const int id)
 Album::Album(const Album &other)
     : id(other.id)
 {
-    releaseType = other.releaseType;
-    rating = other.rating;
+    releaseTypeID = other.releaseTypeID;
+    ratingID = other.ratingID;
     backlog = other.backlog;
     owned = other.owned;
     seeking = other.seeking;
@@ -24,9 +24,9 @@ Album::Album(const Album &other)
     sortTitle = other.sortTitle;
     localizedTitle = other.localizedTitle;
     notes = other.notes;
-    artists = other.artists;
-    featuredArtists = other.featuredArtists;
-    genres = other.genres;
+    artistIDs = other.artistIDs;
+    featuredArtistIDs = other.featuredArtistIDs;
+    genreIDs = other.genreIDs;
 }
 
 Album::~Album()
@@ -40,11 +40,11 @@ void Album::addArtist(int artistID)
     // Check if artist is already in the list
     // If not, add it
     bool alreadyIn = false;
-    for (int id : artists)
+    for (int id : artistIDs)
         if (id == artistID)
             alreadyIn = true;
     if (!alreadyIn)
-        artists.push_back(artistID);
+        artistIDs.push_back(artistID);
 }
 
 void Album::addFeaturedArtist(int artistID)
@@ -52,11 +52,11 @@ void Album::addFeaturedArtist(int artistID)
     // Check if artist is already in the list
     // If not, add it
     bool alreadyIn = false;
-    for (int id : featuredArtists)
+    for (int id : featuredArtistIDs)
         if (id == artistID)
             alreadyIn = true;
     if (!alreadyIn)
-        featuredArtists.push_back(artistID);
+        featuredArtistIDs.push_back(artistID);
 }
 
 void Album::addGenre(int genreID)
@@ -64,29 +64,29 @@ void Album::addGenre(int genreID)
     // Check if genreis already in the list
     // If not, add it
     bool alreadyIn = false;
-    for (int id : genres)
+    for (int id : genreIDs)
         if (id == genreID)
             alreadyIn = true;
     if (!alreadyIn)
-        genres.push_back(genreID);
+        genreIDs.push_back(genreID);
 }
 
-std::vector<int> Album::getArtists() const
+std::vector<int> Album::getArtistIDs() const
 {
-    return artists;
+    return artistIDs;
 }
 
-std::vector<int> Album::getFeaturedArtists() const
+std::vector<int> Album::getFeaturedArtistIDs() const
 {
-    return featuredArtists;
+    return featuredArtistIDs;
 }
 
-std::vector<int> Album::getGenres() const
+std::vector<int> Album::getGenreIDs() const
 {
-    return genres;
+    return genreIDs;
 }
 
-int Album::getId() const
+int Album::getID() const
 {
     return id;
 }
@@ -101,9 +101,9 @@ QString Album::getNotes() const
     return notes;
 }
 
-int Album::getRating() const
+int Album::getRatingID() const
 {
-    return rating;
+    return ratingID;
 }
 
 PartialDate Album::getReleaseDate() const
@@ -111,9 +111,9 @@ PartialDate Album::getReleaseDate() const
     return *releaseDate;
 }
 
-int Album::getReleaseType() const
+int Album::getReleaseTypeID() const
 {
-    return releaseType;
+    return releaseTypeID;
 }
 
 QString Album::getSortTitle() const
@@ -163,7 +163,7 @@ void Album::removeGenre(int artistID)
 
 void Album::setArtistIDs(std::vector<int> &vec)
 {
-    artists = vec;
+    artistIDs = vec;
 }
 
 void Album::setBacklogged(bool value)
@@ -173,12 +173,12 @@ void Album::setBacklogged(bool value)
 
 void Album::setFeaturedArtistIDs(std::vector<int> &vec)
 {
-    featuredArtists = vec;
+    featuredArtistIDs = vec;
 }
 
 void Album::setGenreIDs(std::vector<int> &vec)
 {
-    genres = vec;
+    genreIDs = vec;
 }
 
 void Album::setLocalizedTitle(const QString &value)
@@ -191,9 +191,9 @@ void Album::setOwned(bool value)
     owned = value;
 }
 
-void Album::setRating(int value)
+void Album::setRatingID(int value)
 {
-    rating = value;
+    ratingID = value;
 }
 
 void Album::setReleaseDate(const PartialDate &value)
@@ -203,9 +203,9 @@ void Album::setReleaseDate(const PartialDate &value)
     releaseDate = new PartialDate(value);
 }
 
-void Album::setReleaseType(int value)
+void Album::setReleaseTypeID(int value)
 {
-    releaseType = value;
+    releaseTypeID = value;
 }
 
 void Album::setSeeking(bool value)

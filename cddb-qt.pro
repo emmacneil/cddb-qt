@@ -48,7 +48,9 @@ SOURCES += \
     albumview.cpp \
     markdownview.cpp \
     partialdate.cpp \
-    partialdateedit.cpp
+    partialdateedit.cpp \
+    rating.cpp \
+    release_type.cpp
 
 HEADERS += \
     addalbumdialog.h \
@@ -71,6 +73,8 @@ HEADERS += \
     albumview.h \
     markdownview.h \
     partialdate.h \
-    partialdateedit.h
+    partialdateedit.h \
+    rating.h \
+    release_type.h
 
 FORMS +=

@@ -28,6 +28,8 @@ private slots:
     void editAlbum();
     void editArtist();
     void editGenre();
+    void newDatabase();
+    void openDatabase();
     void quit();
 
 private:
@@ -42,6 +44,8 @@ private:
     QAction *editAlbumAct;
     QAction *editArtistAct;
     QAction *editGenreAct;
+    QAction *newAct;
+    QAction *openAct;
     QAction *quitAct;
     QMenu *fileMenu;
     QMenu *addMenu;

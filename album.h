@@ -2,6 +2,7 @@
 #define ALBUM_H
 
 #include "partialdate.h"
+#include "release_type.h"
 
 #include <vector>
 
@@ -21,15 +22,15 @@ public:
     void addFeaturedArtist(int artistID);
     void addGenre(int genreID);
 
-    std::vector<int> getArtists() const;
-    std::vector<int> getFeaturedArtists() const;
-    std::vector<int> getGenres() const;
-    int getId() const;
+    std::vector<int> getArtistIDs() const;
+    std::vector<int> getFeaturedArtistIDs() const;
+    std::vector<int> getGenreIDs() const;
+    int getID() const;
     QString getLocalizedTitle() const;
     QString getNotes() const;
-    int getRating() const;
+    int getRatingID() const;
     PartialDate getReleaseDate() const;
-    int getReleaseType() const;
+    int getReleaseTypeID() const;
     QString getSortTitle() const;
     QString getTitle() const;
 
@@ -49,9 +50,9 @@ public:
     void setLocalizedTitle(const QString &value);
     void setNotes(const QString &value);
     void setOwned(bool value);
-    void setRating(int value);
+    void setRatingID(int value);
     void setReleaseDate(const PartialDate &value);
-    void setReleaseType(int value);
+    void setReleaseTypeID(int value);
     void setSeeking(bool value);
     void setSortTitle(const QString &value);
     void setTitle(const QString &value);
@@ -59,8 +60,8 @@ public:
 
 private:
     const int id;           // Unique identifier for the album, for looking it up in SQLite
-    int releaseType;  // Album, EP, Single, etc.
-    int rating;
+    int releaseTypeID; // Album, EP, Single, etc.
+    int ratingID;
     bool backlog;  // True if the album is in the user's backlog
     bool owned;    // True if the user owns a copy of this album, whether physically or digitally
     bool seeking;  // True if the user would like to hear or buy the album, but cannot find it
@@ -70,9 +71,9 @@ private:
     QString sortTitle;
     QString localizedTitle;
     QString notes;
-    std::vector<int> artists;
-    std::vector<int> featuredArtists;
-    std::vector<int> genres;
+    std::vector<int> artistIDs;
+    std::vector<int> featuredArtistIDs;
+    std::vector<int> genreIDs;
 };
 
 } // namespace cddb
